@@ -1,0 +1,24 @@
+{
+  "name": "小粉日历",
+  "short_name": "小粉日历",
+  "description": "记录和预测女性生理周期",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fef2f5",
+  "theme_color": "#d95b74",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
