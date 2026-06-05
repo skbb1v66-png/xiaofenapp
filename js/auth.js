@@ -403,12 +403,45 @@ function renderProfilePage() {
     document.getElementById('profileLoggedIn').style.display = 'block';
     document.getElementById('loginWelcome').textContent = '欢迎，' + (p.nickname || p.username) + ' 💗';
     document.getElementById('btnAdmin').style.display = (p.username === 'admin') ? 'inline-block' : 'none';
+    // 渲染统计数据
+    renderProfileStats();
   } else {
     document.getElementById('profileNotLoggedIn').style.display = 'block';
     document.getElementById('profileLoggedIn').style.display = 'none';
   }
   // 设置 UI
   loadSettingsUI();
+}
+
+// 渲染个人信息页的统计概览
+function renderProfileStats() {
+  var data = getStatsData();
+  var statsRow = document.getElementById('profileStatsRow');
+  if (!statsRow) return;
+
+  // 记录次数
+  document.getElementById('statRecordCount').textContent = data.periods.length;
+
+  // 平均周期
+  if (data.avgCycle) {
+    document.getElementById('statAvgCycle').textContent = data.avgCycle;
+  } else {
+    document.getElementById('statAvgCycle').textContent = '--';
+  }
+
+  // 平均经期长度
+  if (data.avgDuration) {
+    document.getElementById('statAvgDuration').textContent = data.avgDuration;
+  } else {
+    document.getElementById('statAvgDuration').textContent = '--';
+  }
+
+  // 规律度
+  if (data.regularityStars) {
+    document.getElementById('statRegularity').textContent = data.regularityStars;
+  } else {
+    document.getElementById('statRegularity').textContent = '--';
+  }
 }
 
 // 加载设置 UI 状态
@@ -419,6 +452,11 @@ function loadSettingsUI() {
   var row = document.getElementById('reminderDaysRow');
   row.style.opacity = s.reminder ? '1' : '0.4';
   row.style.pointerEvents = s.reminder ? 'auto' : 'none';
+  // 加载周期范围设定
+  var minEl = document.getElementById('minCycle');
+  var maxEl = document.getElementById('maxCycle');
+  if (minEl) minEl.value = String(s.minCycle || 21);
+  if (maxEl) maxEl.value = String(s.maxCycle || 35);
 }
 
 // 昵称编辑

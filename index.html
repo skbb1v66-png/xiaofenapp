@@ -197,22 +197,47 @@
         <div class="trend-chart" id="durationTrend"></div>
       </div>
     </div>
-    <!-- add period -->
-    <div class="card" id="addPeriodCard">
-      <div class="card-title">🌸 记录经期开始日</div>
-      <div class="input-row">
-        <input type="date" class="date-input" id="dateInput">
-        <button class="btn-add" onclick="handleAdd()">记录</button>
+    <!-- 记录经期开始（未在经期中时显示） -->
+    <div class="card period-action-card" id="addPeriodCard">
+      <button class="btn-quick-record btn-quick-start" onclick="quickAddPeriod()">
+        <span class="btn-quick-icon">🌸</span>
+        <span class="btn-quick-label">经期来了</span>
+        <span class="btn-quick-sub">点击记录今天</span>
+      </button>
+      <div class="expand-toggle" onclick="toggleAddDate()">
+        <span>选择其他日期</span>
+        <span class="expand-arrow" id="addDateArrow">▾</span>
+      </div>
+      <div class="expand-row" id="addDateRow" style="display:none">
+        <div class="input-row">
+          <input type="date" class="date-input" id="dateInput">
+          <button class="btn-add" onclick="handleAdd()">记录</button>
+        </div>
       </div>
       <div class="error-msg" id="errorMsg"></div>
     </div>
-    <!-- record period end -->
-    <div class="card" id="endPeriodCard" style="display:none">
-      <div class="card-title">🏁 记录经期结束日</div>
-      <div class="end-period-hint" id="endPeriodHint"></div>
-      <div class="input-row">
-        <input type="date" class="date-input" id="endDateInput">
-        <button class="btn-end" onclick="handleAddEnd()">结束</button>
+    <!-- 记录经期结束（经期进行中时显示） -->
+    <div class="card period-action-card period-active-card" id="endPeriodCard" style="display:none">
+      <div class="period-active-badge">🩸 经期进行中</div>
+      <div class="period-day-counter">
+        <span class="period-day-num" id="periodDayNum">1</span>
+        <span class="period-day-unit">天</span>
+      </div>
+      <div class="period-active-info" id="endPeriodHint"></div>
+      <button class="btn-quick-record btn-quick-end" onclick="quickEndPeriod()">
+        <span class="btn-quick-icon">🏁</span>
+        <span class="btn-quick-label">经期结束了</span>
+        <span class="btn-quick-sub">点击记录今天</span>
+      </button>
+      <div class="expand-toggle" onclick="toggleEndDate()">
+        <span>选择其他日期</span>
+        <span class="expand-arrow" id="endDateArrow">▾</span>
+      </div>
+      <div class="expand-row" id="endDateRow" style="display:none">
+        <div class="input-row">
+          <input type="date" class="date-input" id="endDateInput">
+          <button class="btn-end" onclick="handleAddEnd()">结束</button>
+        </div>
       </div>
       <div class="error-msg" id="endErrorMsg"></div>
     </div>
@@ -331,7 +356,7 @@
   <div class="container" style="margin-top:-10px">
 
     <!-- 1) 个人信息卡片 -->
-    <div class="card" style="text-align:center;padding:28px 20px">
+    <div class="profile-card" id="profileCard">
       <div class="profile-avatar-wrap" id="avatarWrap" onclick="document.getElementById('avatarInput').click()">
         <img id="profileAvatarImg" class="profile-avatar" src="" alt="头像" style="display:none">
         <div id="profileAvatarPlaceholder" class="profile-avatar-placeholder" style="display:none"></div>
@@ -345,19 +370,43 @@
 
       <!-- 未登录 -->
       <div id="profileNotLoggedIn">
-        <div class="login-info">登录或注册后使用</div>
-        <div class="profile-btn-row">
-          <button class="btn-profile btn-profile-primary" onclick="showLoginModal()">🔑 账号登录</button>
+        <div class="profile-subtitle">登录后记录和管理经期数据</div>
+        <div class="profile-actions">
+          <button class="btn-profile-primary-lg" onclick="showLoginModal()">🔑 账号登录</button>
+	          <button class="btn-profile-outline-lg" onclick="showRegisterModal()">✨ 注册账号</button>
         </div>
       </div>
 
       <!-- 已登录 -->
       <div id="profileLoggedIn" style="display:none">
-        <div class="login-welcome" id="loginWelcome"></div>
-        <div class="profile-btn-row">
-          <button class="btn-profile btn-profile-outline" onclick="showChangePwdModal()">🔒 修改密码</button>
-          <button class="btn-profile btn-profile-danger" onclick="handleLogout()">退出登录</button>
-          <button class="btn-profile btn-profile-admin" id="btnAdmin" style="display:none" onclick="showAdminModal()">🛡️ 管理后台</button>
+        <div class="profile-subtitle" id="loginWelcome"></div>
+        <!-- 统计概览 -->
+        <div class="profile-stats-row" id="profileStatsRow">
+          <div class="profile-stat-item">
+            <span class="profile-stat-num" id="statRecordCount">0</span>
+            <span class="profile-stat-label">次记录</span>
+          </div>
+          <div class="profile-stat-divider"></div>
+          <div class="profile-stat-item">
+            <span class="profile-stat-num" id="statAvgCycle">--</span>
+            <span class="profile-stat-label">天周期</span>
+          </div>
+          <div class="profile-stat-divider"></div>
+          <div class="profile-stat-item">
+            <span class="profile-stat-num" id="statAvgDuration">--</span>
+            <span class="profile-stat-label">天经期</span>
+          </div>
+          <div class="profile-stat-divider"></div>
+          <div class="profile-stat-item">
+            <span class="profile-stat-num" id="statRegularity">--</span>
+            <span class="profile-stat-label">规律度</span>
+          </div>
+        </div>
+        <!-- 操作按钮 -->
+        <div class="profile-actions">
+          <button class="btn-profile-pill" onclick="showChangePwdModal()">🔒 改密</button>
+          <button class="btn-profile-pill btn-profile-pill-danger" onclick="handleLogout()">退出</button>
+          <button class="btn-profile-pill btn-profile-pill-admin" id="btnAdmin" style="display:none" onclick="showAdminModal()">🛡️ 管理</button>
         </div>
       </div>
     </div>
@@ -387,7 +436,52 @@
       </div>
     </div>
 
-    <!-- 3) 数据管理 -->
+    <!-- 3) 周期范围设定 -->
+    <div class="card">
+      <div class="card-title">📏 周期范围设定</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">最短周期</div>
+          <div class="setting-sub">低于此间隔的记录将提示确认</div>
+        </div>
+        <select class="setting-select" id="minCycle" onchange="saveCycleRange()">
+          <option value="18">18天</option>
+          <option value="19">19天</option>
+          <option value="20">20天</option>
+          <option value="21" selected>21天</option>
+          <option value="22">22天</option>
+          <option value="23">23天</option>
+          <option value="24">24天</option>
+          <option value="25">25天</option>
+          <option value="26">26天</option>
+          <option value="27">27天</option>
+          <option value="28">28天</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">最长周期</div>
+          <div class="setting-sub">超出此间隔的记录不计入平均</div>
+        </div>
+        <select class="setting-select" id="maxCycle" onchange="saveCycleRange()">
+          <option value="28">28天</option>
+          <option value="30">30天</option>
+          <option value="32">32天</option>
+          <option value="35" selected>35天</option>
+          <option value="38">38天</option>
+          <option value="40">40天</option>
+          <option value="45">45天</option>
+          <option value="50">50天</option>
+          <option value="55">55天</option>
+          <option value="60">60天</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:6px;background:var(--bg);padding:8px 10px;border-radius:8px">
+        💡 设定你的正常周期范围后，系统只在此范围内的间隔参与平均计算。偶尔超出范围的异常周期不会影响预测，避免出现"提前20多天"等不合理提示。
+      </div>
+    </div>
+
+    <!-- 4) 数据管理 -->
     <div class="card">
       <div class="card-title">💾 数据管理</div>
       <div class="setting-row">
@@ -407,7 +501,7 @@
       </div>
     </div>
 
-    <!-- 4) 经期历史 -->
+    <!-- 5) 经期历史 -->
     <div class="card">
       <div class="card-title">📋 经期历史</div>
       <div class="setting-row">
@@ -419,12 +513,12 @@
       </div>
     </div>
 
-    <!-- 5) 关于 -->
+    <!-- 6) 关于 -->
     <div class="card">
       <div class="card-title">ℹ️ 关于</div>
       <div class="setting-row">
         <div class="setting-label">版本</div>
-        <div style="font-size:13px;color:var(--text-muted)">2.5.4</div>
+        <div style="font-size:13px;color:var(--text-muted)">2.6.0</div>
       </div>
       <div class="setting-row">
         <div>

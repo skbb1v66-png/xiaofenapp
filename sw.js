@@ -1,7 +1,7 @@
-// Service Worker — 小粉日历 v2.5.4
+// Service Worker — 小粉日历 v2.6.0
 // 缓存策略：Cache First，离线回退到首页
 
-const CACHE = 'xfrl-v3';
+const CACHE = 'xfrl-v4';
 const FILES = [
   './index.html',
   './manifest.json',

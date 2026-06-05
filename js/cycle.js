@@ -11,12 +11,15 @@ function calcCycle(periods) {
   if (periods.length < 2) return 28;
   var sorted = periods.slice().sort();
   var recent = sorted.slice(-4);        // 取最近4次
+  var settings = loadSettings();
+  var minGap = settings.minCycle || 21; // 使用用户设定的周期范围
+  var maxGap = settings.maxCycle || 35;
   var gaps = [];
   for (var i = 1; i < recent.length; i++) {
     var g = diffDays(recent[i - 1], recent[i]);
-    if (g >= 21 && g <= 45) gaps.push(g);  // 过滤异常周期间隔
+    if (g >= minGap && g <= maxGap) gaps.push(g);  // 按用户设定范围过滤
   }
-  if (!gaps.length) return 28;
+  if (!gaps.length) return 28;          // 无有效间隔时使用默认28天
   return Math.round(gaps.reduce(function (a, b) { return a + b; }, 0) / gaps.length);
 }
 
@@ -115,7 +118,8 @@ function calcDeviation(periods, newDate) {
   var status = 'ontime';
   if (deviation <= -2) status = 'early';        // 提前 ≥2 天
   else if (deviation >= 2) status = 'late';     // 推迟 ≥2 天
-  return { predicted: predicted, deviation: deviation, status: status };
+  var anomaly = Math.abs(deviation) > 10;        // 偏差超过10天视为异常
+  return { predicted: predicted, deviation: deviation, status: status, anomaly: anomaly };
 }
 
 // 获取最近一个未记录结束日的经期开始日期
@@ -146,9 +150,12 @@ function getStatsData() {
   if (periods.length < 2) return data;
 
   // 收集周期间隔
+  var settings = loadSettings();
+  var statsMin = Math.max(15, (settings.minCycle || 21) - 6);
+  var statsMax = Math.min(60, (settings.maxCycle || 35) + 15);
   for (var i = 1; i < periods.length; i++) {
     var c = diffDays(periods[i - 1], periods[i]);
-    if (c >= 18 && c <= 50) {
+    if (c >= statsMin && c <= statsMax) {
       data.cycles.push({ start: periods[i - 1], end: periods[i], days: c });
     }
   }
@@ -210,6 +217,7 @@ function migrateDeviations() {
         predicted: dev.predicted,
         deviation: dev.deviation,
         status: dev.status,
+        anomaly: dev.anomaly,
         recordedAt: Date.now()
       };
       changed = true;

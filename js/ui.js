@@ -169,6 +169,7 @@ function renderDeviationCard() {
     var abs = Math.abs(d.deviation);
     var detail = d.status === 'ontime' ? '准时' :
       d.status === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
+    if (d.anomaly) detail += ' ⚠️';
     var statusEmojis = { early: '🟠', late: '🔴', ontime: '🟢' };
     return '<div class="deviation-item">' +
       '<div class="deviation-date">' + fmtCN(p) + ' ' + WEEKDAYS[parseDate(p).getDay()] + '</div>' +
@@ -241,8 +242,11 @@ function renderEndPeriodCard() {
   if (!unended) { card.style.display = 'none'; return; }
   card.style.display = 'block';
   var daysIn = diffDays(unended, todayStr()) + 1;
+  // 更新天数计数器
+  document.getElementById('periodDayNum').textContent = daysIn;
+  // 更新经期信息
   document.getElementById('endPeriodHint').innerHTML =
-    '当前经期：<b>' + fmtCN(unended) + '</b> 开始（<b>第' + daysIn + '天</b>）';
+    '从 <b>' + fmtCN(unended) + '</b> 开始，今天是<b>第 ' + daysIn + ' 天</b>';
   var di = document.getElementById('endDateInput');
   di.value = todayStr(); di.max = todayStr(); di.min = unended;
 }
@@ -285,6 +289,7 @@ function renderCalendar() {
       var st = devs[ds].status;
       var abs = Math.abs(devs[ds].deviation);
       var label = st === 'ontime' ? '准时' : st === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
+      if (devs[ds].anomaly) { label += ' ⚠️'; cls += ' anomaly'; }
       cls += ' has-tag';
       extras += '<div class="cal-deviation-tag ' + st + '">' + label + '</div>';
     }
@@ -310,6 +315,7 @@ function calDayClick(ds) {
   if (ph.periodStart && devs[ds]) {
     var d = devs[ds];
     devStr = d.status === 'ontime' ? ' ✅准时' : d.status === 'early' ? ' 🟠提前' + Math.abs(d.deviation) + '天' : ' 🔴推迟' + d.deviation + '天';
+    if (d.anomaly) devStr += ' ⚠️异常';
   }
   showToast(phaseName + (moodStr ? ' · ' + moodStr : '') + devStr);
 }
@@ -409,6 +415,55 @@ function renderMoodHistory() {
 //  经期记录
 // ======================================================
 
+// 一键记录经期开始（今天）
+function quickAddPeriod() {
+  if (!loadProfile().loggedIn) { document.getElementById('loginPromptModal').classList.add('open'); return; }
+  var v = todayStr();
+  var err = document.getElementById('errorMsg');
+  var periods = loadPeriods();
+  if (periods.indexOf(v) !== -1) { err.textContent = '今天已记录过了'; return; }
+  document.getElementById('dateInput').value = v;
+  handleAdd();
+}
+
+// 一键记录经期结束（今天）
+function quickEndPeriod() {
+  if (!loadProfile().loggedIn) { document.getElementById('loginPromptModal').classList.add('open'); return; }
+  var v = todayStr();
+  var start = getUnendedPeriod();
+  var err = document.getElementById('endErrorMsg');
+  if (!start) { err.textContent = '没有可关联的经期开始日'; return; }
+  if (v < start) { err.textContent = '结束日期不能早于开始日期'; return; }
+  document.getElementById('endDateInput').value = v;
+  handleAddEnd();
+}
+
+// 展开/折叠经期开始日期选择
+function toggleAddDate() {
+  var row = document.getElementById('addDateRow');
+  var arrow = document.getElementById('addDateArrow');
+  if (row.style.display === 'none' || !row.style.display) {
+    row.style.display = 'block';
+    arrow.textContent = '▴';
+  } else {
+    row.style.display = 'none';
+    arrow.textContent = '▾';
+  }
+}
+
+// 展开/折叠经期结束日期选择
+function toggleEndDate() {
+  var row = document.getElementById('endDateRow');
+  var arrow = document.getElementById('endDateArrow');
+  if (row.style.display === 'none' || !row.style.display) {
+    row.style.display = 'block';
+    arrow.textContent = '▴';
+  } else {
+    row.style.display = 'none';
+    arrow.textContent = '▾';
+  }
+}
+
 function handleAdd() {
   if (!loadProfile().loggedIn) { document.getElementById('loginPromptModal').classList.add('open'); return; }
   var v = document.getElementById('dateInput').value;
@@ -418,20 +473,34 @@ function handleAdd() {
   var periods = loadPeriods();
   if (periods.indexOf(v) !== -1) { err.textContent = '该日期已记录过了'; return; }
 
+  // 检查是否距离上次经期太近（低于用户设定的最短周期）
+  if (periods.length) {
+    var sorted2 = periods.slice().sort();
+    var lastPeriod = sorted2[sorted2.length - 1];
+    var daysFromLast = diffDays(lastPeriod, v);
+    var settings = loadSettings();
+    if (daysFromLast < (settings.minCycle || 21)) {
+      if (!confirm('⚠️ 距离上次经期仅 ' + daysFromLast + ' 天，低于设定的最短周期（' + (settings.minCycle || 21) + '天）。\n\n这可能不是真正的经期（如排卵期出血）。\n\n确定要记录吗？')) {
+        return;
+      }
+    }
+  }
+
   // 计算偏差
   var dev = calcDeviation(periods, v);
   periods.push(v); savePeriods(periods);
 
-  // 存储偏差
+  // 存储偏差（含异常标记）
   if (dev) {
     var devs = loadDeviations();
-    devs[v] = { predicted: dev.predicted, deviation: dev.deviation, status: dev.status, recordedAt: Date.now() };
+    devs[v] = { predicted: dev.predicted, deviation: dev.deviation, status: dev.status, anomaly: dev.anomaly, recordedAt: Date.now() };
     saveDeviations(devs);
   }
 
   err.textContent = '';
   if (dev) {
-    if (dev.status === 'ontime') showToast('记录成功 🌸 准时来访');
+    if (dev.anomaly) showToast('⚠️ 记录成功 🌸 偏差较大，请注意观察');
+    else if (dev.status === 'ontime') showToast('记录成功 🌸 准时来访');
     else if (dev.status === 'early') showToast('记录成功 🌸 比预测提前' + Math.abs(dev.deviation) + '天');
     else showToast('记录成功 🌸 比预测推迟' + dev.deviation + '天');
   } else {
@@ -468,6 +537,27 @@ function saveSettings() {
   s.reminderDays = +document.getElementById('reminderDays').value;
   localStorage.setItem(K_SETTINGS, JSON.stringify(s));
   scheduleReminder();
+}
+
+// 保存周期范围设定
+function saveCycleRange() {
+  var s = loadSettings();
+  var minEl = document.getElementById('minCycle');
+  var maxEl = document.getElementById('maxCycle');
+  var min = +minEl.value;
+  var max = +maxEl.value;
+  if (min > max) {
+    // 自动交换，确保最短 ≤ 最长
+    minEl.value = max;
+    maxEl.value = min;
+    var tmp = min; min = max; max = tmp;
+    showToast('已自动调整：最短周期 ≤ 最长周期');
+  }
+  s.minCycle = min;
+  s.maxCycle = max;
+  saveSettings(s);
+  renderHome();
+  renderCalendar();
 }
 
 function handleReminderToggle() {

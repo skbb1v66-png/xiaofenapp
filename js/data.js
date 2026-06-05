@@ -36,11 +36,11 @@ function saveMoods(d) { localStorage.setItem(K_MOOD, JSON.stringify(d)); }
 function loadSettings() {
   try {
     return Object.assign(
-      { reminder: false, reminderDays: 2, mode: 'normal' },
+      { reminder: false, reminderDays: 2, mode: 'normal', minCycle: 21, maxCycle: 35 },
       JSON.parse(localStorage.getItem(K_SETTINGS)) || {}
     );
   }
-  catch { return { reminder: false, reminderDays: 2, mode: 'normal' }; }
+  catch { return { reminder: false, reminderDays: 2, mode: 'normal', minCycle: 21, maxCycle: 35 }; }
 }
 function saveSettings(s) { localStorage.setItem(K_SETTINGS, JSON.stringify(s)); }
 

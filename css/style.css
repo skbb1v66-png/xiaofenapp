@@ -405,22 +405,45 @@ body {
 svg.ring circle { fill:none; stroke-linecap:round; }
 
 /* ===== PROFILE PAGE ===== */
+
+/* 个人信息卡片 —— 渐变背景 */
+.profile-card {
+  background: linear-gradient(180deg, #fff 0%, #fef5f7 40%, #fef2f5 100%);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 30px 20px 22px;
+  margin-bottom: 14px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid var(--primary-pale);
+}
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, var(--primary-pale) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
 .profile-avatar-wrap {
-  position:relative; width:80px; height:80px; margin:0 auto 12px;
+  position:relative; width:88px; height:88px; margin:0 auto 14px;
   border-radius:50%; overflow:visible; cursor:pointer;
 }
 .profile-avatar {
-  width:80px; height:80px; border-radius:50%; object-fit:cover;
-  border:3px solid var(--primary-pale);
+  width:88px; height:88px; border-radius:50%; object-fit:cover;
+  border:3.5px solid var(--primary-pale);
 }
 .profile-avatar-placeholder {
-  width:80px; height:80px; border-radius:50%;
+  width:88px; height:88px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:32px; font-weight:700; color:#fff;
-  border:3px solid var(--primary-pale);
+  font-size:36px; font-weight:700; color:#fff;
+  border:3.5px solid var(--primary-pale);
 }
 .profile-avatar-badge {
-  position:absolute; bottom:2px; right:2px;
+  position:absolute; bottom:4px; right:4px;
   background:var(--primary); border-radius:50%;
   width:28px; height:28px; font-size:14px;
   display:flex; align-items:center; justify-content:center;
@@ -428,10 +451,11 @@ svg.ring circle { fill:none; stroke-linecap:round; }
   pointer-events:none;
 }
 .profile-name-display {
-  font-size:20px; font-weight:600; color:var(--text);
-  cursor:pointer; padding:6px 12px; border-radius:8px;
-  display:inline-block; min-width:60px; margin-bottom:8px;
+  font-size:21px; font-weight:600; color:var(--text);
+  cursor:pointer; padding:4px 12px; border-radius:8px;
+  display:inline-block; min-width:60px; margin-bottom:6px;
   transition: background 0.2s;
+  font-family: 'Noto Serif SC', serif;
 }
 .profile-name-display:hover { background: var(--bg); }
 .profile-name-display::after {
@@ -443,16 +467,102 @@ svg.ring circle { fill:none; stroke-linecap:round; }
   border:none; background:var(--bg); padding:6px 10px;
   font-size:18px; font-weight:600; font-family:'Noto Sans SC',sans-serif;
   color:var(--text); text-align:center; outline:none;
-  min-width:80px; max-width:180px; margin-bottom:8px;
+  min-width:80px; max-width:180px; margin-bottom:6px;
   border-radius:8px; border:2px solid var(--primary-light);
 }
 
 .profile-name-saved {
-  font-size:20px; font-weight:600; color:var(--text); margin-bottom:8px;
+  font-size:20px; font-weight:600; color:var(--text); margin-bottom:6px;
 }
 
+.profile-subtitle {
+  font-size:13px; color:var(--text-muted);
+  margin-bottom: 12px; line-height: 1.5;
+}
+
+/* 未登录大按钮 */
+.profile-actions {
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+  margin-top:2px;
+}
+.btn-profile-primary-lg {
+  background: linear-gradient(135deg, #d95b74, #e87d93);
+  color:#fff; border:none; border-radius:100px;
+  padding: 11px 28px; font-size:15px; font-weight:500;
+  font-family:'Noto Sans SC',sans-serif; cursor:pointer;
+  box-shadow:0 4px 14px rgba(217,91,116,0.3);
+  transition: transform 0.1s;
+  min-height:44px;
+}
+.btn-profile-primary-lg:active { transform:scale(0.96); }
+.btn-profile-outline-lg {
+  background: transparent;
+  color: var(--primary); border: 1.5px solid var(--primary);
+  border-radius:100px;
+  padding: 11px 28px; font-size:15px; font-weight:500;
+  font-family:'Noto Sans SC',sans-serif; cursor:pointer;
+  transition: transform 0.1s;
+  min-height:44px;
+}
+.btn-profile-outline-lg:active { transform:scale(0.96); }
+
+/* 统计概览行 */
+.profile-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 16px 0;
+  padding: 14px 8px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 10px rgba(217,91,116,0.06);
+}
+.profile-stat-item {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.profile-stat-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+.profile-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.profile-stat-divider {
+  width: 1px;
+  height: 30px;
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+/* 小药丸按钮 */
+.btn-profile-pill {
+  border: none;
+  border-radius: 100px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-family: 'Noto Sans SC', sans-serif;
+  cursor: pointer;
+  font-weight: 500;
+  background: var(--bg);
+  color: var(--primary);
+  transition: transform 0.1s, background 0.15s;
+  min-height: 36px;
+}
+.btn-profile-pill:active { transform: scale(0.95); background: var(--primary-pale); }
+.btn-profile-pill-danger { color: var(--text-muted); }
+.btn-profile-pill-admin { background: #fef0e8; color: var(--orange); }
+
+/* 旧样式兼容（保留以备其他用途） */
 .login-info { font-size:13px; color:var(--text-muted); margin-bottom:10px; }
-.login-welcome { font-size:14px; color:var(--primary); font-weight:500; margin-bottom:6px; }
 .login-uid { font-size:11px; color:var(--text-muted); margin-bottom:12px; }
 
 .profile-btn-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
@@ -541,6 +651,132 @@ svg.ring circle { fill:none; stroke-linecap:round; }
   transition:transform 0.1s;
 }
 .btn-end:active { transform:scale(0.96); }
+
+/* ===== PERIOD ACTION CARD (新版记录卡片) ===== */
+.period-action-card {
+  text-align: center;
+  padding: 26px 20px 22px;
+}
+
+/* 一键记录大按钮 */
+.btn-quick-record {
+  width: 100%;
+  border: none;
+  border-radius: 20px;
+  padding: 20px 16px 16px;
+  cursor: pointer;
+  font-family: 'Noto Sans SC', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: transform 0.15s, box-shadow 0.2s;
+  margin-bottom: 14px;
+}
+.btn-quick-record:active {
+  transform: scale(0.96);
+}
+.btn-quick-icon {
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.btn-quick-label {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+.btn-quick-sub {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* 开始按钮 —— 粉色系 */
+.btn-quick-start {
+  background: linear-gradient(135deg, #d95b74 0%, #e87d93 60%, #f4a0b4 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(217,91,116,0.38);
+}
+
+/* 结束按钮 —— 绿色系 */
+.btn-quick-end {
+  background: linear-gradient(135deg, #5ca870 0%, #6dbf82 60%, #8fd4a0 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(109,191,130,0.38);
+}
+
+/* 展开/折叠：选择其他日期 */
+.expand-toggle {
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  user-select: none;
+  display: inline-block;
+  transition: color 0.2s;
+}
+.expand-toggle:hover {
+  color: var(--primary);
+}
+.expand-arrow {
+  font-size: 10px;
+  margin-left: 3px;
+}
+
+/* 日期选择行（展开后） */
+.expand-row {
+  margin-top: 12px;
+  animation: fadeIn 0.25s ease;
+}
+
+/* ===== 经期进行中卡片 ===== */
+.period-active-card {
+  background: linear-gradient(180deg, #fff 0%, #fef5f7 60%, #fef2f5 100%);
+  border: 1.5px solid var(--primary-pale);
+}
+
+.period-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--primary-pale);
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.period-day-counter {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.period-day-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 60px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.period-day-unit {
+  font-size: 20px;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.period-active-info {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
 
 /* ===== STATS CARD ===== */
 .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
