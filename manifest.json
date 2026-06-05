@@ -1,28 +1,28 @@
 {
-    "name" : "例假日记",
-    "short_name" : "例假日记",
-    "description" : "记录和预测生理周期，每天记录经量、心情、症状",
-    "start_url" : "./index.html",
-    "display" : "standalone",
-    "background_color" : "#fef2f5",
-    "theme_color" : "#d95b74",
-    "orientation" : "portrait",
-    "icons" : [
+    "name": "例假日记",
+    "short_name": "例假日记",
+    "description": "记录和预测生理周期，每天记录经量、心情、症状",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#fef2f5",
+    "theme_color": "#d95b74",
+    "orientation": "portrait",
+    "icons": [
         {
-            "src" : "icon-192.png",
-            "sizes" : "192x192",
-            "type" : "image/png",
-            "purpose" : "any maskable"
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
-            "src" : "icon-512.png",
-            "sizes" : "512x512",
-            "type" : "image/png",
-            "purpose" : "any maskable"
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ],
-    "id" : "H55E71943",
-    "version" : {
-        "name" : "2.0.0"
+    "id": "H55E71943",
+    "version": {
+        "name": "2.5.4"
     }
 }

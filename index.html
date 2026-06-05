@@ -9,403 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="例假日记">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="stylesheet" href="css/style.css">
 <title>例假日记 💗</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
-
-:root {
-  --bg: #fef2f5;
-  --bg2: #fde8ee;
-  --primary: #d95b74;
-  --primary-dark: #c04865;
-  --primary-light: #f7b8c8;
-  --primary-pale: #fce4eb;
-  --green: #6dbf82;
-  --orange: #f0a050;
-  --blue: #6aabcf;
-  --text: #3d2030;
-  --text-muted: #9a7080;
-  --white: #ffffff;
-  --card-shadow: 0 8px 32px rgba(217,91,116,0.12);
-  --radius: 22px;
-  --radius-sm: 14px;
-  --bottom-bar: 64px;
-}
-
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-
-body {
-  font-family: 'Noto Sans SC', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding-bottom: calc(var(--bottom-bar) + 16px);
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ===== BOTTOM NAV ===== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: var(--bottom-bar);
-  background: var(--white);
-  border-top: 1px solid #f5dde4;
-  display: flex;
-  z-index: 100;
-  box-shadow: 0 -4px 20px rgba(217,91,116,0.08);
-}
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  cursor: pointer;
-  transition: color 0.2s;
-  color: var(--text-muted);
-  font-size: 11px;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-.nav-item.active { color: var(--primary); }
-.nav-item .nav-icon { font-size: 22px; line-height: 1; }
-
-/* ===== PAGES ===== */
-.page { display: none; animation: fadeIn 0.25s ease; }
-.page.active { display: block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-/* ===== HEADER ===== */
-.header {
-  background: linear-gradient(135deg, #d95b74 0%, #e87d93 55%, #f4a7ba 100%);
-  padding: 52px 20px 28px;
-  position: relative;
-  overflow: hidden;
-}
-.header::before {
-  content:''; position:absolute; top:-50px; right:-50px;
-  width:200px; height:200px; background:rgba(255,255,255,0.07); border-radius:50%;
-}
-.header::after {
-  content:''; position:absolute; bottom:-70px; left:-40px;
-  width:240px; height:240px; background:rgba(255,255,255,0.05); border-radius:50%;
-}
-.header-inner { position:relative; z-index:1; }
-.header-top { display:flex; justify-content:space-between; align-items:flex-start; }
-.header-title { font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700; color:#fff; letter-spacing:2px; }
-.header-sub { font-size:12px; color:rgba(255,255,255,0.75); margin-top:4px; }
-.mode-badge {
-  background: rgba(255,255,255,0.22);
-  color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.4);
-  border-radius: 100px;
-  font-size: 12px;
-  padding: 5px 13px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.mode-badge:active { background: rgba(255,255,255,0.35); }
-
-/* ===== CONTAINER ===== */
-.container { max-width: 480px; margin: 0 auto; padding: 0 14px; }
-
-/* ===== CARDS ===== */
-.card {
-  background: var(--white);
-  border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
-  padding: 20px 20px;
-  margin-bottom: 14px;
-}
-.card-title {
-  font-family:'Noto Serif SC',serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-/* ===== STATUS CARD ===== */
-.status-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
-  padding: 22px 20px;
-  margin: -18px 0 14px;
-  position: relative;
-  z-index: 2;
-}
-.phase-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--primary-pale); color: var(--primary);
-  font-size: 13px; font-weight: 500;
-  padding: 5px 14px; border-radius: 100px; margin-bottom: 14px;
-}
-.days-row { display:flex; align-items:baseline; gap:6px; margin-bottom:6px; }
-.days-num { font-family:'Noto Serif SC',serif; font-size:54px; font-weight:700; color:var(--primary); line-height:1; }
-.days-unit { font-size:15px; color:var(--text-muted); }
-.days-tip { font-size:13px; color:var(--text-muted); margin-bottom:18px; line-height:1.5; }
-.info-chips { display:flex; gap:10px; flex-wrap:wrap; }
-.chip {
-  background: var(--bg); border-radius: var(--radius-sm);
-  padding: 10px 13px; flex:1; min-width:110px;
-}
-.chip-label { font-size:11px; color:var(--text-muted); margin-bottom:3px; }
-.chip-value { font-size:13px; font-weight:500; color:var(--text); }
-
-/* ===== CALENDAR ===== */
-.cal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px;
-}
-.cal-nav-btn {
-  background: var(--bg); border: none; border-radius: 10px;
-  width:34px; height:34px; font-size:16px;
-  color: var(--primary); cursor: pointer;
-  display:flex; align-items:center; justify-content:center;
-  transition: background 0.15s;
-}
-.cal-nav-btn:active { background: var(--primary-pale); }
-.cal-month-label { font-family:'Noto Serif SC',serif; font-size:16px; font-weight:600; }
-.cal-weekdays {
-  display: grid; grid-template-columns: repeat(7,1fr);
-  text-align: center; margin-bottom: 6px;
-}
-.cal-weekday { font-size: 11px; color: var(--text-muted); padding: 4px 0; }
-.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-.cal-day {
-  aspect-ratio: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  border-radius: 12px;
-  font-size: 13px;
-  cursor: pointer;
-  position: relative;
-  transition: background 0.15s;
-  user-select: none;
-}
-.cal-day:active { opacity: 0.7; }
-.cal-day.other-month { color: #ccc; }
-.cal-day.today { font-weight: 700; color: var(--primary); }
-.cal-day.today::after {
-  content:''; position:absolute; bottom:4px;
-  width:4px; height:4px; background:var(--primary); border-radius:50%;
-}
-.cal-day.period { background: #fde; color: var(--primary-dark); font-weight:600; }
-.cal-day.period-start { background: var(--primary); color:#fff; border-radius:50%; }
-.cal-day.fertile { background: #fff0e8; }
-.cal-day.ovulation { background: var(--orange); color:#fff; border-radius:50%; }
-.cal-day.safe { }
-.cal-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  position: absolute; bottom: 3px;
-}
-.cal-legend {
-  display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px;
-}
-.legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted); }
-.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-
-/* ===== MOOD / SYMPTOM ===== */
-.mood-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
-.mood-btn {
-  background: var(--bg); border: 2px solid transparent;
-  border-radius: var(--radius-sm); padding: 10px 4px;
-  text-align: center; cursor: pointer;
-  transition: all 0.15s;
-  font-size: 11px; color: var(--text-muted);
-}
-.mood-btn .mood-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
-.mood-btn.selected { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
-.mood-btn:active { transform: scale(0.95); }
-
-.symptom-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-.sym-btn {
-  background: var(--bg); border: 2px solid transparent;
-  border-radius: 100px; padding: 7px 13px;
-  font-size: 12px; color: var(--text-muted);
-  cursor: pointer; transition: all 0.15s;
-}
-.sym-btn.selected { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); }
-.sym-btn:active { opacity: 0.7; }
-
-.note-input {
-  width: 100%; border: 2px solid var(--primary-light);
-  border-radius: var(--radius-sm); padding: 10px 14px;
-  font-size: 14px; font-family: 'Noto Sans SC', sans-serif;
-  color: var(--text); background: var(--bg);
-  outline: none; resize: none; min-height: 70px;
-  transition: border-color 0.2s;
-}
-.note-input:focus { border-color: var(--primary); }
-
-.btn-save {
-  width: 100%;
-  background: linear-gradient(135deg, #d95b74, #e87d93);
-  color: #fff; border: none;
-  border-radius: var(--radius-sm); padding: 13px;
-  font-size: 15px; font-weight: 500;
-  font-family: 'Noto Sans SC', sans-serif;
-  cursor: pointer; margin-top: 12px;
-  box-shadow: 0 4px 14px rgba(217,91,116,0.3);
-  transition: transform 0.1s, box-shadow 0.2s;
-}
-.btn-save:active { transform: scale(0.98); box-shadow: 0 2px 6px rgba(217,91,116,0.2); }
-
-/* ===== ADD PERIOD ===== */
-.input-row { display:flex; gap:10px; align-items:center; }
-.date-input {
-  flex:1; border: 2px solid var(--primary-light);
-  border-radius: var(--radius-sm); padding: 11px 14px;
-  font-size:15px; font-family:'Noto Sans SC',sans-serif;
-  color:var(--text); background:var(--bg); outline:none;
-  transition: border-color 0.2s; -webkit-appearance:none;
-}
-.date-input:focus { border-color: var(--primary); }
-.btn-add {
-  background: linear-gradient(135deg, #d95b74, #e87d93);
-  color:#fff; border:none; border-radius:var(--radius-sm);
-  padding: 11px 18px; font-size:14px; font-weight:500;
-  font-family:'Noto Sans SC',sans-serif; cursor:pointer;
-  box-shadow:0 4px 12px rgba(217,91,116,0.3); white-space:nowrap;
-  transition: transform 0.1s;
-}
-.btn-add:active { transform: scale(0.96); }
-.error-msg { font-size:12px; color:#e05c5c; margin-top:7px; min-height:16px; }
-
-/* ===== HISTORY ===== */
-.history-item {
-  display:flex; justify-content:space-between; align-items:center;
-  background:var(--bg); border-radius:var(--radius-sm);
-  padding: 12px 14px; animation: fadeIn 0.2s ease;
-}
-.history-list { display:flex; flex-direction:column; gap:8px; }
-.h-left { display:flex; flex-direction:column; gap:3px; }
-.h-date { font-size:15px; font-weight:500; }
-.h-meta { font-size:12px; color:var(--text-muted); }
-.btn-del {
-  background:none; border:none; color:var(--primary-light);
-  font-size:20px; cursor:pointer; padding:2px 8px;
-  border-radius:8px; transition:color 0.2s;
-  line-height:1;
-}
-.btn-del:active { color:var(--primary); background:var(--primary-pale); }
-
-/* ===== SETTINGS ===== */
-.setting-row {
-  display:flex; justify-content:space-between; align-items:center;
-  padding: 14px 0; border-bottom: 1px solid var(--bg2);
-}
-.setting-row:last-child { border-bottom: none; }
-.setting-label { font-size:14px; }
-.setting-sub { font-size:12px; color:var(--text-muted); margin-top:2px; }
-
-/* toggle */
-.toggle {
-  position:relative; width:48px; height:26px; cursor:pointer;
-}
-.toggle input { opacity:0; width:0; height:0; position:absolute; }
-.toggle-track {
-  position:absolute; inset:0;
-  background:#e0c0c8; border-radius:100px;
-  transition: background 0.2s;
-}
-.toggle input:checked ~ .toggle-track { background: var(--primary); }
-.toggle-thumb {
-  position:absolute; top:3px; left:3px;
-  width:20px; height:20px; background:#fff;
-  border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.2);
-  transition: left 0.2s;
-}
-.toggle input:checked ~ .toggle-thumb { left:25px; }
-
-/* select */
-.setting-select {
-  background:var(--bg); border:2px solid var(--primary-light);
-  border-radius:10px; padding:6px 10px; font-size:13px;
-  color:var(--text); font-family:'Noto Sans SC',sans-serif;
-  outline:none;
-}
-
-/* ===== TOASTS ===== */
-.toast {
-  position:fixed; bottom:calc(var(--bottom-bar)+20px); left:50%;
-  transform:translateX(-50%) translateY(10px);
-  background:rgba(60,20,30,0.85); color:#fff;
-  padding:10px 22px; border-radius:100px; font-size:13px;
-  opacity:0; transition:all 0.3s; pointer-events:none; z-index:999;
-  white-space:nowrap;
-}
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* ===== MODAL ===== */
-.modal-overlay {
-  position:fixed; inset:0; background:rgba(61,32,48,0.45);
-  display:flex; align-items:flex-end; justify-content:center;
-  z-index:200; opacity:0; pointer-events:none;
-  transition: opacity 0.25s;
-}
-.modal-overlay.open { opacity:1; pointer-events:auto; }
-.modal {
-  background:var(--white); border-radius:var(--radius) var(--radius) 0 0;
-  padding:24px 20px 40px; width:100%; max-width:480px;
-  transform: translateY(40px);
-  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-}
-.modal-overlay.open .modal { transform:translateY(0); }
-.modal-title { font-family:'Noto Serif SC',serif; font-size:17px; font-weight:600; margin-bottom:18px; }
-.modal-btns { display:flex; gap:10px; margin-top:18px; }
-.btn-modal {
-  flex:1; border:none; border-radius:var(--radius-sm);
-  padding:12px; font-size:14px; font-family:'Noto Sans SC',sans-serif;
-  cursor:pointer; transition:opacity 0.15s;
-}
-.btn-modal:active { opacity:0.7; }
-.btn-modal-cancel { background:var(--bg); color:var(--text-muted); }
-.btn-modal-ok { background:var(--primary); color:#fff; }
-
-/* ===== CYCLE BAR ===== */
-.cycle-bar-wrap {
-  position:relative; height:12px; background:var(--bg2);
-  border-radius:100px; overflow:visible; margin:14px 0 8px;
-}
-.cycle-bar-fill {
-  height:100%; border-radius:100px;
-  transition:width 0.6s cubic-bezier(.4,0,.2,1);
-}
-.cycle-bar-cursor {
-  position:absolute; top:-3px;
-  width:18px; height:18px;
-  background:var(--primary); border:3px solid #fff;
-  border-radius:50%;
-  box-shadow:0 2px 8px rgba(217,91,116,0.4);
-  transform:translateX(-50%);
-  transition:left 0.6s cubic-bezier(.4,0,.2,1);
-}
-
-/* ===== FIRST USE ===== */
-.first-use { text-align:center; padding:8px 0; }
-.first-use-emoji { font-size:38px; display:block; margin-bottom:10px; }
-.first-use-text { font-size:14px; color:var(--text-muted); line-height:1.7; }
-
-/* ===== FERTILITY MODE ===== */
-.fertility-banner {
-  background: linear-gradient(135deg, #f9e0ea, #fce4f0);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  border-left: 4px solid var(--primary);
-}
-.fertility-title { font-size:14px; font-weight:500; color:var(--primary-dark); margin-bottom:4px; }
-.fertility-text { font-size:12px; color:var(--text-muted); line-height:1.6; }
-
-/* Progress ring */
-.ring-wrap { display:flex; justify-content:center; margin:4px 0 16px; }
-svg.ring circle { fill:none; stroke-linecap:round; }
-</style>
 </head>
 <body>
 
@@ -427,6 +32,116 @@ svg.ring circle { fill:none; stroke-linecap:round; }
     <div class="modal-btns">
       <button class="btn-modal btn-modal-cancel" onclick="closeModal()">取消</button>
       <button class="btn-modal btn-modal-ok" onclick="confirmMode()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (setup - first admin creation) -->
+<div class="modal-overlay" id="setupModal">
+  <div class="modal" style="padding-bottom:34px">
+    <div class="modal-title">🔑 创建管理员账号</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">
+      这是你第一次使用小粉日历<br>请先创建一个管理员账号 💗
+    </div>
+    <input class="login-input" id="setupUsername" type="text" placeholder="用户名" autocomplete="off">
+    <input class="login-input" id="setupPassword" type="password" placeholder="设置密码（至少4位）" autocomplete="new-password">
+    <input class="login-input" id="setupPassword2" type="password" placeholder="确认密码" autocomplete="new-password">
+    <div class="login-error" id="setupError"></div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-modal-ok" onclick="handleSetupAdmin()">创建账号</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (login) -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="padding-bottom:34px">
+    <div class="modal-title">🔑 账号登录</div>
+    <input class="login-input" id="loginUsername" type="text" placeholder="用户名" autocomplete="username">
+    <input class="login-input" id="loginPassword" type="password" placeholder="密码" autocomplete="current-password">
+    <div class="login-error" id="loginError"></div>
+    <div style="text-align:center;margin-bottom:4px">
+      <span style="font-size:12px;color:var(--text-muted);cursor:pointer;text-decoration:underline" onclick="showRegisterModal()">没有账号？注册一个</span>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-modal-cancel" onclick="closeLoginModal()">取消</button>
+      <button class="btn-modal btn-modal-ok" onclick="handleLogin()">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (register) -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal" style="padding-bottom:34px">
+    <div class="modal-title">✨ 注册新账号</div>
+    <input class="login-input" id="regUsername" type="text" placeholder="你想用的用户名" autocomplete="off">
+    <input class="login-input" id="regPassword" type="password" placeholder="设置密码（至少4位）" autocomplete="new-password">
+    <input class="login-input" id="regPassword2" type="password" placeholder="确认密码" autocomplete="new-password">
+    <div id="inviteCodeRow">
+      <input class="login-input" id="regInviteCode" type="text" placeholder="注册密钥（向管理员索取）" autocomplete="off">
+    </div>
+    <div class="login-error" id="regError"></div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-modal-cancel" onclick="closeRegisterModal()">取消</button>
+      <button class="btn-modal btn-modal-ok" onclick="handleRegister()">注册</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (admin panel) -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal" style="padding-bottom:34px">
+    <div class="modal-title">🛡️ 管理后台</div>
+    <!-- 创建用户 -->
+    <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bg2)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">➕ 创建新用户</div>
+      <input class="login-input" id="newUsername" type="text" placeholder="用户名" style="margin-bottom:6px">
+      <input class="login-input" id="newUserPwd" type="password" placeholder="密码" style="margin-bottom:6px">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">也可直接帮用户创建，跳过注册密钥验证</div>
+      <button class="btn-add" style="width:100%;font-size:13px" onclick="handleCreateUser()">创建账号</button>
+      <div class="login-error" id="createUserError"></div>
+    </div>
+    <!-- 注册密钥 -->
+    <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bg2)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">🔑 注册密钥</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+        <input class="login-input" id="regKeyInput" type="text" placeholder="设置注册密钥" style="margin-bottom:0;flex:1">
+        <button class="btn-add" style="font-size:12px;padding:11px 14px;flex-shrink:0" onclick="handleSaveRegKey()">保存</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.5">💡 把密钥告诉女朋友，她就能用这个密钥自己注册账号。不知道密钥的路人无法注册。</div>
+      <div class="login-error" id="regKeyMsg" style="color:var(--green)"></div>
+    </div>
+    <!-- 用户列表 -->
+    <div id="adminUserList"></div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-modal-cancel" onclick="closeAdminModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (change password) -->
+<div class="modal-overlay" id="changePwdModal">
+  <div class="modal" style="padding-bottom:34px">
+    <div class="modal-title">🔒 修改密码</div>
+    <input class="login-input" id="oldPassword" type="password" placeholder="当前密码" autocomplete="current-password">
+    <input class="login-input" id="newPassword" type="password" placeholder="新密码" autocomplete="new-password">
+    <input class="login-input" id="newPassword2" type="password" placeholder="确认新密码" autocomplete="new-password">
+    <div class="login-error" id="changePwdError"></div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-modal-cancel" onclick="closeChangePwdModal()">取消</button>
+      <button class="btn-modal btn-modal-ok" onclick="handleChangePwd()">确认修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (login prompt) -->
+<div class="modal-overlay" id="loginPromptModal">
+  <div class="modal" style="text-align:center;padding-bottom:34px">
+    <div style="font-size:48px;margin-bottom:12px">🔒</div>
+    <div class="modal-title" style="font-size:18px">请先登录</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6">登录后即可记录和管理经期数据</div>
+    <div class="modal-btns">
+      <button class="btn-modal btn-modal-ok" onclick="closeLoginPrompt();switchPage('profile')">👤 前往登录</button>
     </div>
   </div>
 </div>
@@ -463,14 +178,43 @@ svg.ring circle { fill:none; stroke-linecap:round; }
         <div class="legend-item"><div class="legend-dot" style="background:#e8f5ee"></div>安全期</div>
       </div>
     </div>
+    <!-- deviation history -->
+    <div class="card" id="deviationCard" style="display:none">
+      <div class="card-title">📊 周期记录</div>
+      <div class="deviation-summary" id="deviationSummary"></div>
+      <div class="deviation-list" id="deviationList"></div>
+    </div>
+    <!-- stats card -->
+    <div class="card" id="statsCard" style="display:none">
+      <div class="card-title">📈 统计分析</div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="trend-section" id="cycleTrendSection">
+        <div class="trend-title">📅 周期趋势（最近）</div>
+        <div class="trend-chart" id="cycleTrend"></div>
+      </div>
+      <div class="trend-section" id="durationTrendSection">
+        <div class="trend-title">🩸 经期长度趋势</div>
+        <div class="trend-chart" id="durationTrend"></div>
+      </div>
+    </div>
     <!-- add period -->
-    <div class="card">
+    <div class="card" id="addPeriodCard">
       <div class="card-title">🌸 记录经期开始日</div>
       <div class="input-row">
         <input type="date" class="date-input" id="dateInput">
         <button class="btn-add" onclick="handleAdd()">记录</button>
       </div>
       <div class="error-msg" id="errorMsg"></div>
+    </div>
+    <!-- record period end -->
+    <div class="card" id="endPeriodCard" style="display:none">
+      <div class="card-title">🏁 记录经期结束日</div>
+      <div class="end-period-hint" id="endPeriodHint"></div>
+      <div class="input-row">
+        <input type="date" class="date-input" id="endDateInput">
+        <button class="btn-end" onclick="handleAddEnd()">结束</button>
+      </div>
+      <div class="error-msg" id="endErrorMsg"></div>
     </div>
     <!-- fertility mode extra -->
     <div id="fertilityExtra" style="display:none">
@@ -510,6 +254,9 @@ svg.ring circle { fill:none; stroke-linecap:round; }
         <div class="legend-item"><div class="legend-dot" style="background:#fde"></div>经期</div>
         <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>排卵日</div>
         <div class="legend-item"><div class="legend-dot" style="background:#fff0e8"></div>易孕期</div>
+        <div class="legend-item"><span style="font-size:9px;color:#388e3c;font-weight:500">准时</span></div>
+        <div class="legend-item"><span style="font-size:9px;color:#e67e22;font-weight:500">提前N天</span></div>
+        <div class="legend-item"><span style="font-size:9px;color:#d95b74;font-weight:500">推迟N天</span></div>
       </div>
     </div>
   </div>
@@ -574,14 +321,48 @@ svg.ring circle { fill:none; stroke-linecap:round; }
   </div>
 </div>
 
-<!-- ========== PAGE: SETTINGS ========== -->
-<div class="page" id="page-settings">
+<!-- ========== PAGE: PROFILE ========== -->
+<div class="page" id="page-profile">
   <div class="header" style="padding-bottom:20px">
     <div class="header-inner">
-      <div class="header-title">⚙️ 设置</div>
+      <div class="header-title">👤 我的</div>
     </div>
   </div>
   <div class="container" style="margin-top:-10px">
+
+    <!-- 1) 个人信息卡片 -->
+    <div class="card" style="text-align:center;padding:28px 20px">
+      <div class="profile-avatar-wrap" id="avatarWrap" onclick="document.getElementById('avatarInput').click()">
+        <img id="profileAvatarImg" class="profile-avatar" src="" alt="头像" style="display:none">
+        <div id="profileAvatarPlaceholder" class="profile-avatar-placeholder" style="display:none"></div>
+        <div class="profile-avatar-badge">📷</div>
+      </div>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+
+      <!-- 昵称 -->
+      <div id="profileNameDisplay" class="profile-name-display" onclick="editNickname()"></div>
+      <input id="profileNameInput" class="profile-name-input" type="text" maxlength="20" style="display:none" onblur="saveNickname()" onkeydown="if(event.key==='Enter')this.blur()">
+
+      <!-- 未登录 -->
+      <div id="profileNotLoggedIn">
+        <div class="login-info">登录或注册后使用</div>
+        <div class="profile-btn-row">
+          <button class="btn-profile btn-profile-primary" onclick="showLoginModal()">🔑 账号登录</button>
+        </div>
+      </div>
+
+      <!-- 已登录 -->
+      <div id="profileLoggedIn" style="display:none">
+        <div class="login-welcome" id="loginWelcome"></div>
+        <div class="profile-btn-row">
+          <button class="btn-profile btn-profile-outline" onclick="showChangePwdModal()">🔒 修改密码</button>
+          <button class="btn-profile btn-profile-danger" onclick="handleLogout()">退出登录</button>
+          <button class="btn-profile btn-profile-admin" id="btnAdmin" style="display:none" onclick="showAdminModal()">🛡️ 管理后台</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2) 提醒设置 -->
     <div class="card">
       <div class="card-title">🔔 提醒设置</div>
       <div class="setting-row">
@@ -605,6 +386,28 @@ svg.ring circle { fill:none; stroke-linecap:round; }
         </select>
       </div>
     </div>
+
+    <!-- 3) 数据管理 -->
+    <div class="card">
+      <div class="card-title">💾 数据管理</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">导出数据</div>
+          <div class="setting-sub">将所有记录备份为 JSON 文件</div>
+        </div>
+        <button class="btn-add" style="font-size:12px;padding:8px 14px" onclick="exportAllData()">导出</button>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">导入数据</div>
+          <div class="setting-sub">从备份文件恢复数据（覆盖当前数据）</div>
+        </div>
+        <button class="btn-add" style="font-size:12px;padding:8px 14px" onclick="document.getElementById('importInput').click()">导入</button>
+        <input type="file" id="importInput" accept=".json" style="display:none" onchange="importAllData(event)">
+      </div>
+    </div>
+
+    <!-- 4) 经期历史 -->
     <div class="card">
       <div class="card-title">📋 经期历史</div>
       <div class="setting-row">
@@ -615,16 +418,18 @@ svg.ring circle { fill:none; stroke-linecap:round; }
         <button class="btn-add" style="font-size:12px;padding:8px 14px" onclick="confirmClearAll()">清空</button>
       </div>
     </div>
+
+    <!-- 5) 关于 -->
     <div class="card">
       <div class="card-title">ℹ️ 关于</div>
       <div class="setting-row">
         <div class="setting-label">版本</div>
-        <div style="font-size:13px;color:var(--text-muted)">2.0.0</div>
+        <div style="font-size:13px;color:var(--text-muted)">2.5.4</div>
       </div>
       <div class="setting-row">
         <div>
           <div class="setting-label">数据存储</div>
-          <div class="setting-sub">仅保存在本设备，不联网，保护隐私</div>
+          <div class="setting-sub">本地加密存储 · 支持导出备份</div>
         </div>
       </div>
       <div class="setting-row">
@@ -635,6 +440,7 @@ svg.ring circle { fill:none; stroke-linecap:round; }
         <button class="btn-add" id="installBtn" style="font-size:12px;padding:8px 14px;display:none" onclick="installPWA()">安装</button>
       </div>
     </div>
+
     <div style="text-align:center;font-size:12px;color:var(--text-muted);padding:8px 0 4px">
       💗 小粉日历 · 为她而做
     </div>
@@ -655,468 +461,17 @@ svg.ring circle { fill:none; stroke-linecap:round; }
     <div class="nav-icon">🎀</div>
     <span>记录</span>
   </div>
-  <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">
-    <div class="nav-icon">⚙️</div>
-    <span>设置</span>
+  <div class="nav-item" id="nav-profile" onclick="switchPage('profile')">
+    <div class="nav-icon">👤</div>
+    <span>我的</span>
   </div>
 </nav>
 
-<script>
-// ======================================================
-//  DATA
-// ======================================================
-const K_PERIODS = 'xfrl_periods_v2';
-const K_MOOD    = 'xfrl_mood_v2';
-const K_SETTINGS= 'xfrl_settings_v2';
-const WEEKDAYS  = ['周日','周一','周二','周三','周四','周五','周六'];
+<!-- 加载 JS（顺序很重要：data → cycle → auth → ui） -->
+<script src="js/data.js"></script>
+<script src="js/cycle.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
 
-function loadPeriods() { try{return JSON.parse(localStorage.getItem(K_PERIODS))||[];}catch{return[];} }
-function savePeriods(d){ localStorage.setItem(K_PERIODS,JSON.stringify(d)); }
-function loadMoods()   { try{return JSON.parse(localStorage.getItem(K_MOOD))||{};}catch{return{};} }
-function saveMoods(d)  { localStorage.setItem(K_MOOD,JSON.stringify(d)); }
-function loadSettings(){ try{return Object.assign({reminder:false,reminderDays:2,mode:'normal'},JSON.parse(localStorage.getItem(K_SETTINGS))||{});}catch{return{reminder:false,reminderDays:2,mode:'normal'};} }
-function saveSettings(){ const s=loadSettings(); s.reminderDays=+document.getElementById('reminderDays').value; localStorage.setItem(K_SETTINGS,JSON.stringify(s)); scheduleReminder(); }
-
-// ======================================================
-//  DATE UTILS
-// ======================================================
-function todayStr(){ const d=new Date(); return fmt(d); }
-function fmt(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function parseDate(s){ const[y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
-function addDays(s,n){ const d=parseDate(s); d.setDate(d.getDate()+n); return fmt(d); }
-function diffDays(a,b){ return Math.round((parseDate(b)-parseDate(a))/86400000); }
-function fmtCN(s){ const d=parseDate(s); return `${d.getMonth()+1}月${d.getDate()}日`; }
-function fmtFullCN(s){ const d=parseDate(s); return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`; }
-
-// ======================================================
-//  CYCLE CALC
-// ======================================================
-function calcCycle(periods){
-  if(periods.length<2) return 28;
-  const sorted=[...periods].sort();
-  const recent=sorted.slice(-4);
-  const gaps=[];
-  for(let i=1;i<recent.length;i++){
-    const g=diffDays(recent[i-1],recent[i]);
-    if(g>=21&&g<=45) gaps.push(g);
-  }
-  if(!gaps.length) return 28;
-  return Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
-}
-
-function getPhaseInfo(periods){
-  if(!periods.length) return null;
-  const sorted=[...periods].sort();
-  const last=sorted[sorted.length-1];
-  const cycle=calcCycle(periods);
-  const today=todayStr();
-  const daysSince=diffDays(last,today);
-  let nextPeriod;
-  if(daysSince<cycle){ nextPeriod=addDays(last,cycle); }
-  else { const n=Math.ceil(daysSince/cycle); nextPeriod=addDays(last,n*cycle); }
-  const daysTo=diffDays(today,nextPeriod);
-  const ovulation=addDays(nextPeriod,-14);
-  const fertileStart=addDays(ovulation,-2);
-  const fertileEnd=addDays(ovulation,2);
-  const dayInCycle=((daysSince%cycle)+cycle)%cycle;
-  let phase,emoji,tip;
-  const tp=parseDate(today), fs=parseDate(fertileStart), fe=parseDate(fertileEnd);
-  if(dayInCycle<5){ phase='经期'; emoji='🌹'; tip='注意保暖，多休息，避免剧烈运动 💊'; }
-  else if(tp>=fs&&tp<=fe){ phase='排卵期'; emoji='🌷'; tip='易孕高峰期，注意避孕或积极备孕 🌡️'; }
-  else if(daysTo<=7&&daysTo>=0){ phase='经前期'; emoji='🌸'; tip='经期即将到来，注意情绪调节 🫖'; }
-  else { phase='安全期'; emoji='🌼'; tip='状态良好，保持规律作息和运动 ✨'; }
-  return {last,cycle,today,daysSince,nextPeriod,daysTo,ovulation,fertileStart,fertileEnd,dayInCycle,phase,emoji,tip};
-}
-
-// ======================================================
-//  PHASE FOR DATE (for calendar coloring)
-// ======================================================
-function getDatePhases(periods){
-  const map={};
-  if(!periods.length) return map;
-  const sorted=[...periods].sort();
-  const cycle=calcCycle(periods);
-  const today=todayStr();
-  const last=sorted[sorted.length-1];
-  // Go back 3 cycles and forward 3 cycles
-  const start=addDays(last,-cycle*3);
-  const end=addDays(last,cycle*3);
-  let cur=start;
-  while(cur<=end){
-    map[cur]=map[cur]||{};
-    // check if it's a period start
-    if(periods.includes(cur)){ map[cur].periodStart=true; }
-    // check which phase based on nearest previous period
-    const prevPeriods=sorted.filter(p=>p<=cur);
-    if(prevPeriods.length){
-      const prevLast=prevPeriods[prevPeriods.length-1];
-      const dayIn=diffDays(prevLast,cur);
-      const c=calcCycle(periods);
-      const nextP=addDays(prevLast,c);
-      const ovul=addDays(nextP,-14);
-      const fs=addDays(ovul,-2), fe=addDays(ovul,2);
-      if(dayIn<5) map[cur].period=true;
-      if(cur>=fs&&cur<=fe) map[cur].fertile=true;
-      if(cur===ovul) map[cur].ovulation=true;
-    }
-    cur=addDays(cur,1);
-  }
-  return map;
-}
-
-// ======================================================
-//  RENDER HOME
-// ======================================================
-function renderHome(){
-  const periods=loadPeriods();
-  const settings=loadSettings();
-  const card=document.getElementById('statusCard');
-  const cycleBarCard=document.getElementById('cycleBarCard');
-  const fertilityExtra=document.getElementById('fertilityExtra');
-  // mode badge
-  document.getElementById('modeBadge').textContent=settings.mode==='fertility'?'🌱 备孕模式':'🌸 经期模式';
-
-  if(!periods.length){
-    card.innerHTML=`<div class="first-use"><span class="first-use-emoji">🌸</span><div class="first-use-text">欢迎使用小粉日历<br>点击下方记录第一次经期开始日<br>让我们一起了解你的身体节律 💗</div></div>`;
-    cycleBarCard.style.display='none';
-    fertilityExtra.style.display='none';
-    return;
-  }
-
-  const info=getPhaseInfo(periods);
-  const daysLabel=info.daysTo===0?'今天来访':info.daysTo<0?`已推迟 ${-info.daysTo} 天`:`${info.daysTo} 天后来访`;
-  let chipHTML='';
-  if(info.phase==='排卵期'){
-    chipHTML=`<div class="chip"><div class="chip-label">易孕期</div><div class="chip-value">${fmtCN(info.fertileStart)}–${fmtCN(info.fertileEnd)}</div></div><div class="chip"><div class="chip-label">排卵日</div><div class="chip-value">${fmtCN(info.ovulation)}</div></div>`;
-  } else {
-    chipHTML=`<div class="chip"><div class="chip-label">预测下次经期</div><div class="chip-value">${fmtCN(info.nextPeriod)}</div></div><div class="chip"><div class="chip-label">平均周期</div><div class="chip-value">${info.cycle}天${periods.length<2?' (默认)':''}</div></div>`;
-  }
-
-  card.innerHTML=`
-    <div class="phase-badge">${info.emoji} ${info.phase}</div>
-    <div class="days-row">
-      <div class="days-num">${Math.abs(info.daysTo)}</div>
-      <div class="days-unit">${info.daysTo===0?'':info.daysTo<0?'天':'天后'}</div>
-    </div>
-    <div class="days-tip">${daysLabel}<br><span style="font-size:12px">${info.tip}</span></div>
-    <div class="info-chips">${chipHTML}</div>`;
-
-  // cycle bar
-  cycleBarCard.style.display='block';
-  const pct=Math.min(100,Math.max(0,(info.dayInCycle/info.cycle)*100));
-  const fill=document.getElementById('cycleBarFill');
-  fill.style.width=pct+'%';
-  fill.style.background=`linear-gradient(90deg,#f4a7ba 0%,#fce4eb ${(5/info.cycle*100).toFixed(0)}%,#fce4eb ${((info.cycle-16)/info.cycle*100).toFixed(0)}%,var(--orange) ${((info.cycle-14)/info.cycle*100).toFixed(0)}%,#fce4eb ${((info.cycle-12)/info.cycle*100).toFixed(0)}%,#fce4eb 100%)`;
-  document.getElementById('cycleBarCursor').style.left=pct+'%';
-  document.getElementById('cycleEndLabel').textContent=`第${info.cycle}天`;
-
-  // fertility mode
-  if(settings.mode==='fertility'){
-    fertilityExtra.style.display='block';
-    const fc=document.getElementById('fertilityCard');
-    fc.innerHTML=`
-      <div class="card-title">🌡️ 备孕指南</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="chip"><div class="chip-label">预测排卵日</div><div class="chip-value" style="color:var(--orange)">${fmtCN(info.ovulation)} ${WEEKDAYS[parseDate(info.ovulation).getDay()]}</div></div>
-        <div class="chip"><div class="chip-label">易孕窗口期</div><div class="chip-value">${fmtCN(info.fertileStart)} — ${fmtCN(info.fertileEnd)}</div></div>
-        <div class="chip"><div class="chip-label">距排卵日</div><div class="chip-value">${diffDays(info.today,info.ovulation)>0?diffDays(info.today,info.ovulation)+'天后':'已过'}${diffDays(info.today,info.ovulation)===0?' 今天是排卵日🎯':''}</div></div>
-        <div style="font-size:12px;color:var(--text-muted);line-height:1.7;background:var(--bg);padding:10px 12px;border-radius:10px">
-          💡 备孕小贴士：在易孕期内保持轻松心态，规律同房，补充叶酸，避免熬夜。排卵期前后同房受孕概率最高。
-        </div>
-      </div>`;
-  } else {
-    fertilityExtra.style.display='none';
-  }
-}
-
-// ======================================================
-//  CALENDAR
-// ======================================================
-let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
-
-function calNav(dir){
-  calMonth+=dir;
-  if(calMonth>11){calMonth=0;calYear++;}
-  if(calMonth<0){calMonth=11;calYear--;}
-  renderCalendar();
-}
-
-function renderCalendar(){
-  const periods=loadPeriods();
-  const phases=getDatePhases(periods);
-  const today=todayStr();
-  const label=document.getElementById('calMonthLabel');
-  label.textContent=`${calYear}年${calMonth+1}月`;
-  const grid=document.getElementById('calGrid');
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  let html='';
-  // empty cells
-  for(let i=0;i<firstDay;i++) html+=`<div class="cal-day other-month"></div>`;
-  for(let d=1;d<=daysInMonth;d++){
-    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const ph=phases[ds]||{};
-    const moods=loadMoods();
-    const hasMood=!!moods[ds];
-    let cls='cal-day';
-    if(ds===today) cls+=' today';
-    if(ph.periodStart) cls+=' period-start';
-    else if(ph.period) cls+=' period';
-    else if(ph.ovulation) cls+=' ovulation';
-    else if(ph.fertile) cls+=' fertile';
-    let dot=hasMood?`<div class="cal-dot" style="background:var(--primary-light)"></div>`:'';
-    html+=`<div class="${cls}" onclick="calDayClick('${ds}')">${d}${dot}</div>`;
-  }
-  grid.innerHTML=html;
-}
-
-function calDayClick(ds){
-  const periods=loadPeriods();
-  const phases=getDatePhases(periods);
-  const ph=phases[ds]||{};
-  const moods=loadMoods();
-  const m=moods[ds]||{};
-  const phaseName=ph.periodStart?'经期开始':ph.period?'经期中':ph.ovulation?'排卵日':ph.fertile?'易孕期':'安全期';
-  const moodEmojis={happy:'😊',calm:'😌',tired:'😴',sad:'😢',anxious:'😰',irritable:'😤',romantic:'🥰',excited:'🤩'};
-  let moodStr=m.mood?(moodEmojis[m.mood]||'')+''+({happy:'开心',calm:'平静',tired:'疲惫',sad:'低落',anxious:'焦虑',irritable:'烦躁',romantic:'浪漫',excited:'兴奋'}[m.mood]||''):'';
-  let symStr=(m.symptoms||[]).length?m.symptoms.join('、'):'';
-  let noteStr=m.note?`📝 ${m.note}`:'';
-  const lines=[`📅 ${fmtFullCN(ds)}`,`阶段：${phaseName}`,moodStr?`心情：${moodStr}`:'',symStr?`症状：${symStr}`:'',noteStr].filter(Boolean).join('\n');
-  showToast(phaseName+(moodStr?' · '+moodStr:''));
-}
-
-// ======================================================
-//  MOOD PAGE
-// ======================================================
-let selectedMood=null;
-let selectedSymptoms=new Set();
-let selectedFlow=null;
-
-function toggleMood(mood,el){
-  document.querySelectorAll('#moodGrid .mood-btn').forEach(b=>b.classList.remove('selected'));
-  if(selectedMood===mood){ selectedMood=null; }
-  else { selectedMood=mood; el.classList.add('selected'); }
-}
-
-function toggleFlow(flow,el){
-  document.querySelectorAll('#flowGrid .sym-btn').forEach(b=>b.classList.remove('selected'));
-  if(selectedFlow===flow){ selectedFlow=null; }
-  else { selectedFlow=flow; el.classList.add('selected'); }
-}
-
-function toggleSym(sym,el){
-  if(selectedSymptoms.has(sym)){ selectedSymptoms.delete(sym); el.classList.remove('selected'); }
-  else { selectedSymptoms.add(sym); el.classList.add('selected'); }
-}
-
-function saveMoodEntry(){
-  const today=todayStr();
-  const moods=loadMoods();
-  moods[today]={ mood:selectedMood, symptoms:[...selectedSymptoms], flow:selectedFlow, note:document.getElementById('noteInput').value.trim(), ts:Date.now() };
-  saveMoods(moods);
-  showToast('记录已保存 💗');
-  renderMoodHistory();
-}
-
-function renderMoodPage(){
-  const today=todayStr();
-  const d=parseDate(today);
-  document.getElementById('moodDateLabel').textContent=`${d.getMonth()+1}月${d.getDate()}日 ${WEEKDAYS[d.getDay()]}`;
-  // restore today's entry
-  const moods=loadMoods();
-  const e=moods[today]||{};
-  selectedMood=e.mood||null;
-  selectedSymptoms=new Set(e.symptoms||[]);
-  selectedFlow=e.flow||null;
-  document.querySelectorAll('#flowGrid .sym-btn').forEach(b=>{
-    b.classList.toggle('selected',b.dataset.flow===selectedFlow);
-  });
-  document.querySelectorAll('#moodGrid .mood-btn').forEach(b=>{
-    b.classList.toggle('selected',b.dataset.mood===selectedMood);
-  });
-  document.querySelectorAll('#symptomGrid .sym-btn').forEach(b=>{
-    b.classList.toggle('selected',selectedSymptoms.has(b.dataset.sym));
-  });
-  document.getElementById('noteInput').value=e.note||'';
-  renderMoodHistory();
-}
-
-function renderMoodHistory(){
-  const moods=loadMoods();
-  const keys=Object.keys(moods).sort().reverse().slice(0,14);
-  const card=document.getElementById('moodHistCard');
-  const list=document.getElementById('moodHistList');
-  if(!keys.length){ card.style.display='none'; return; }
-  card.style.display='block';
-  const symNames={cramps:'痛经',bloating:'腹胀',headache:'头痛',backache:'腰酸',acne:'痘痘',breast:'乳房胀',nausea:'恶心',discharge:'分泌物增多',insomnia:'失眠',appetite:'食欲增加'};
-  const flowNames={none:'🈚',light:'🔸少',medium:'🔴中',heavy:'🔴🔴多'};
-  const moodEmojis={happy:'😊',calm:'😌',tired:'😴',sad:'😢',anxious:'😰',irritable:'😤',romantic:'🥰',excited:'🤩'};
-  list.innerHTML='<div class="history-list">'+keys.map(ds=>{
-    const m=moods[ds];
-    const syms=(m.symptoms||[]).map(s=>symNames[s]||s).join(' · ');
-    return `<div class="history-item">
-      <div class="h-left">
-        <div class="h-date">${fmtCN(ds)} ${WEEKDAYS[parseDate(ds).getDay()]} ${m.mood?(moodEmojis[m.mood]||''):''} ${m.flow?(flowNames[m.flow]||''):''}</div>
-        <div class="h-meta">${syms||'无症状'}${m.note?' · '+m.note:''}</div>
-      </div>
-    </div>`;
-  }).join('')+'</div>';
-}
-
-// ======================================================
-//  ADD PERIOD
-// ======================================================
-function handleAdd(){
-  const v=document.getElementById('dateInput').value;
-  const err=document.getElementById('errorMsg');
-  if(!v){err.textContent='请选择日期';return;}
-  if(v>todayStr()){err.textContent='不能记录未来的日期';return;}
-  const periods=loadPeriods();
-  if(periods.includes(v)){err.textContent='该日期已记录过了';return;}
-  periods.push(v); savePeriods(periods);
-  err.textContent='';
-  showToast('记录成功 🌸');
-  renderHome();
-  renderCalendar();
-}
-
-// ======================================================
-//  SETTINGS
-// ======================================================
-function handleReminderToggle(){
-  const on=document.getElementById('reminderToggle').checked;
-  const row=document.getElementById('reminderDaysRow');
-  row.style.opacity=on?'1':'0.4';
-  row.style.pointerEvents=on?'auto':'none';
-  const s=loadSettings(); s.reminder=on;
-  localStorage.setItem(K_SETTINGS,JSON.stringify(s));
-  if(on) requestNotificationPermission();
-  scheduleReminder();
-}
-
-async function requestNotificationPermission(){
-  if(!('Notification' in window)){ showToast('此浏览器不支持通知'); return; }
-  const perm=await Notification.requestPermission();
-  if(perm!=='granted'){ showToast('请允许通知权限以启用提醒'); document.getElementById('reminderToggle').checked=false; }
-  else showToast('提醒已开启 🔔');
-}
-
-function scheduleReminder(){
-  // Check daily when app opens
-  const s=loadSettings();
-  if(!s.reminder) return;
-  const periods=loadPeriods();
-  if(!periods.length) return;
-  const info=getPhaseInfo(periods);
-  if(info&&info.daysTo===s.reminderDays){
-    if(Notification.permission==='granted'){
-      new Notification('💗 小粉日历提醒',{
-        body:`预计还有${s.reminderDays}天经期到来，注意做好准备哦～`,
-        icon:'./icon-192.png'
-      });
-    }
-  }
-}
-
-function confirmClearAll(){
-  if(!loadPeriods().length&&!Object.keys(loadMoods()).length){ showToast('暂无数据'); return; }
-  if(confirm('确定要清空所有数据吗？此操作不可撤销。')){
-    localStorage.removeItem(K_PERIODS);
-    localStorage.removeItem(K_MOOD);
-    showToast('已清空所有数据');
-    renderHome(); renderCalendar();
-  }
-}
-
-function loadSettingsUI(){
-  const s=loadSettings();
-  document.getElementById('reminderToggle').checked=s.reminder;
-  document.getElementById('reminderDays').value=String(s.reminderDays);
-  const row=document.getElementById('reminderDaysRow');
-  row.style.opacity=s.reminder?'1':'0.4';
-  row.style.pointerEvents=s.reminder?'auto':'none';
-}
-
-// ======================================================
-//  MODE MODAL
-// ======================================================
-let pendingMode=null;
-function openModal(){
-  const s=loadSettings();
-  pendingMode=s.mode;
-  document.querySelectorAll('#modeGrid .mood-btn').forEach(b=>{
-    b.classList.toggle('selected',b.dataset.mode===pendingMode);
-  });
-  document.getElementById('modeModal').classList.add('open');
-}
-function closeModal(){ document.getElementById('modeModal').classList.remove('open'); }
-function selectMode(m,el){
-  pendingMode=m;
-  document.querySelectorAll('#modeGrid .mood-btn').forEach(b=>b.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function confirmMode(){
-  const s=loadSettings(); s.mode=pendingMode;
-  localStorage.setItem(K_SETTINGS,JSON.stringify(s));
-  closeModal(); renderHome();
-}
-
-// ======================================================
-//  PAGE NAV
-// ======================================================
-function switchPage(name){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
-  if(name==='calendar') renderCalendar();
-  if(name==='mood') renderMoodPage();
-  if(name==='settings') loadSettingsUI();
-}
-
-// ======================================================
-//  TOAST
-// ======================================================
-let toastTimer=null;
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  if(toastTimer) clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
-}
-
-// ======================================================
-//  PWA INSTALL
-// ======================================================
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault(); deferredPrompt=e;
-  document.getElementById('installBtn').style.display='block';
-  document.getElementById('installHint').textContent='点击安装按钮，将应用添加到手机桌面';
-});
-function installPWA(){
-  if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{deferredPrompt=null;}); }
-}
-
-// ======================================================
-//  INIT
-// ======================================================
-document.addEventListener('DOMContentLoaded',()=>{
-  // Header date
-  const now=new Date();
-  const days=['日','一','二','三','四','五','六'];
-  document.getElementById('headerDate').textContent=`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日  星期${days[now.getDay()]}`;
-  // Date input
-  const di=document.getElementById('dateInput');
-  di.value=todayStr(); di.max=todayStr();
-  // Render
-  renderHome();
-  scheduleReminder();
-  // SW
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  }
-});
-</script>
 </body>
 </html>
