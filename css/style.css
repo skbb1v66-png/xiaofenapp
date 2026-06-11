@@ -70,13 +70,16 @@ body {
 .nav-item .nav-icon { font-size: 22px; line-height: 1; }
 
 /* ===== PAGES ===== */
-.page {
-  display: none;
-  position: absolute; top:0; left:0; right:0;
-}
+.page { display: none; }
 .page.active { display: block; }
 
-/* 从右侧滑入 */
+/* 页面切换动效：仅在动画期间用绝对定位，避免脱离文档流 */
+.page.slide-in-right,
+.page.slide-in-left,
+.page.slide-out-left,
+.page.slide-out-right {
+  position: absolute; top:0; left:0; right:0;
+}
 .page.slide-in-right {
   animation: slideInRight 0.32s var(--transition) both;
 }
