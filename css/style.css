@@ -242,7 +242,7 @@ body {
 }
 
 .cal-day {
-  aspect-ratio: 1;
+  min-height: 44px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   border-radius: 14px;
@@ -252,9 +252,11 @@ body {
   transition: background 0.15s, transform 0.12s;
   user-select: none;
   gap: 1px;
+  padding: 2px 0;
 }
 .cal-day:active { transform: scale(0.92); }
-.cal-day.has-tag { aspect-ratio: auto; min-height: 44px; padding: 2px 0; }
+.cal-day.has-tag { padding: 3px 0; }
+.cal-deviation-tag:empty { display: none; }
 .cal-deviation-tag {
   font-size: 8px; line-height: 1; font-weight: 500;
   padding: 1px 5px; border-radius: 4px; white-space: nowrap;
