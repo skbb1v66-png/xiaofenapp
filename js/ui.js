@@ -255,14 +255,17 @@ function renderEndPeriodCard() {
 //  日历渲染
 // ======================================================
 
+var _calAnimating = false;
+
 function calNav(dir) {
+  if (_calAnimating) return;
   calMonth += dir;
   if (calMonth > 11) { calMonth = 0; calYear++; }
   if (calMonth < 0) { calMonth = 11; calYear--; }
-  renderCalendar();
+  renderCalendar(dir > 0 ? 'left' : 'right');
 }
 
-function renderCalendar() {
+function renderCalendar(animDir) {
   var periods = loadPeriods();
   var phases = getDatePhases(periods);
   var devs = loadDeviations();
@@ -297,6 +300,16 @@ function renderCalendar() {
     html += '<div class="' + cls + '" onclick="calDayClick(\'' + ds + '\')">' + d + extras + dot + '</div>';
   }
   grid.innerHTML = html;
+
+  // 翻月动画
+  if (animDir) {
+    _calAnimating = true;
+    grid.classList.add('slide-' + animDir);
+    setTimeout(function () {
+      grid.classList.remove('slide-left', 'slide-right');
+      _calAnimating = false;
+    }, 300);
+  }
 }
 
 function calDayClick(ds) {
@@ -654,21 +667,50 @@ function confirmMode() {
 //  页面导航
 // ======================================================
 
+// 页面名 → 导航顺序
+var _pageOrder = ['home', 'calendar', 'mood', 'profile'];
+var _currentPageIdx = 0;
+var _animating = false;
+
 function switchPage(name) {
   // 月历/记录页需要登录
   if ((name === 'calendar' || name === 'mood') && !loadProfile().loggedIn) {
     document.getElementById('loginPromptModal').classList.add('open');
     return;
   }
-  var pages = document.querySelectorAll('.page');
-  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  if (_animating) return;
+  var oldPage = document.querySelector('.page.active');
+  var newPage = document.getElementById('page-' + name);
+  if (!newPage || oldPage === newPage) return;
+
+  var newIdx = _pageOrder.indexOf(name);
+  var direction = newIdx > _currentPageIdx ? 'right' : 'left';
+  _currentPageIdx = newIdx;
+  _animating = true;
+
+  // 旧页滑出
+  oldPage.classList.remove('active');
+  oldPage.classList.add('slide-out-' + (direction === 'right' ? 'left' : 'right'));
+
+  // 新页滑入
+  newPage.classList.add('active', 'slide-in-' + direction);
+
+  // 导航高亮
   var navs = document.querySelectorAll('.nav-item');
   for (var j = 0; j < navs.length; j++) navs[j].classList.remove('active');
-  document.getElementById('page-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+
+  // 内容渲染
   if (name === 'calendar') renderCalendar();
   if (name === 'mood') renderMoodPage();
   if (name === 'profile') renderProfilePage();
+
+  // 动画结束后清理状态
+  setTimeout(function () {
+    oldPage.classList.remove('slide-out-left', 'slide-out-right');
+    newPage.classList.remove('slide-in-right', 'slide-in-left');
+    _animating = false;
+  }, 350);
 }
 
 // ======================================================

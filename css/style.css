@@ -13,10 +13,12 @@
   --text: #3d2030;
   --text-muted: #9a7080;
   --white: #ffffff;
-  --card-shadow: 0 8px 32px rgba(217,91,116,0.12);
-  --radius: 22px;
+  --card-shadow: 0 4px 20px rgba(217,91,116,0.08);
+  --card-shadow-sm: 0 2px 10px rgba(217,91,116,0.05);
+  --radius: 24px;
   --radius-sm: 14px;
-  --bottom-bar: 64px;
+  --bottom-bar: 68px;
+  --transition: cubic-bezier(.4,0,.2,1);
 }
 
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -35,11 +37,12 @@ body {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   height: var(--bottom-bar);
-  background: var(--white);
-  border-top: 1px solid #f5dde4;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   z-index: 100;
-  box-shadow: 0 -4px 20px rgba(217,91,116,0.08);
+  box-shadow: 0 -2px 16px rgba(217,91,116,0.06);
 }
 .nav-item {
   flex: 1;
@@ -47,35 +50,80 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   cursor: pointer;
   transition: color 0.2s;
   color: var(--text-muted);
   font-size: 11px;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  position: relative;
 }
 .nav-item.active { color: var(--primary); }
+.nav-item.active::before {
+  content:'';
+  position:absolute; top:4px;
+  width:18px; height:3px;
+  background:var(--primary);
+  border-radius:100px;
+  transition: width 0.3s var(--transition);
+}
 .nav-item .nav-icon { font-size: 22px; line-height: 1; }
 
 /* ===== PAGES ===== */
-.page { display: none; animation: fadeIn 0.25s ease; }
+.page {
+  display: none;
+  position: absolute; top:0; left:0; right:0;
+}
 .page.active { display: block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* 从右侧滑入 */
+.page.slide-in-right {
+  animation: slideInRight 0.32s var(--transition) both;
+}
+@keyframes slideInRight {
+  from { opacity:0; transform:translateX(60px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+/* 从左侧滑入 */
+.page.slide-in-left {
+  animation: slideInLeft 0.32s var(--transition) both;
+}
+@keyframes slideInLeft {
+  from { opacity:0; transform:translateX(-60px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+/* 滑出到左侧 */
+.page.slide-out-left {
+  animation: slideOutLeft 0.25s var(--transition) both;
+  display: block !important;
+}
+@keyframes slideOutLeft {
+  from { opacity:1; transform:translateX(0); }
+  to   { opacity:0; transform:translateX(-40px); }
+}
+
+/* 滑出到右侧 */
+.page.slide-out-right {
+  animation: slideOutRight 0.25s var(--transition) both;
+  display: block !important;
+}
+@keyframes slideOutRight {
+  from { opacity:1; transform:translateX(0); }
+  to   { opacity:0; transform:translateX(40px); }
+}
 
 /* ===== HEADER ===== */
 .header {
-  background: linear-gradient(135deg, #d95b74 0%, #e87d93 55%, #f4a7ba 100%);
-  padding: 52px 20px 28px;
+  background: linear-gradient(135deg, #d95b74 0%, #e87d93 100%);
+  padding: 52px 20px 30px;
   position: relative;
   overflow: hidden;
 }
 .header::before {
-  content:''; position:absolute; top:-50px; right:-50px;
-  width:200px; height:200px; background:rgba(255,255,255,0.07); border-radius:50%;
-}
-.header::after {
-  content:''; position:absolute; bottom:-70px; left:-40px;
-  width:240px; height:240px; background:rgba(255,255,255,0.05); border-radius:50%;
+  content:''; position:absolute; top:-60px; right:-40px;
+  width:220px; height:220px; background:rgba(255,255,255,0.06); border-radius:50%;
 }
 .header-inner { position:relative; z-index:1; }
 .header-top { display:flex; justify-content:space-between; align-items:flex-start; }
@@ -100,8 +148,8 @@ body {
 .card {
   background: var(--white);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
-  padding: 20px 20px;
+  box-shadow: var(--card-shadow-sm);
+  padding: 24px 22px;
   margin-bottom: 14px;
 }
 .card-title {
@@ -149,60 +197,86 @@ body {
   margin-bottom: 14px;
 }
 .cal-nav-btn {
-  background: var(--bg); border: none; border-radius: 10px;
-  width:34px; height:34px; font-size:16px;
+  background: var(--bg); border: none; border-radius: 12px;
+  width: 36px; height: 36px; font-size: 18px;
   color: var(--primary); cursor: pointer;
   display:flex; align-items:center; justify-content:center;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.12s;
 }
-.cal-nav-btn:active { background: var(--primary-pale); }
-.cal-month-label { font-family:'Noto Serif SC',serif; font-size:16px; font-weight:600; }
+.cal-nav-btn:active { background: var(--primary-pale); transform: scale(0.92); }
+.cal-month-label {
+  font-family:'Noto Serif SC',serif; font-size: 17px; font-weight: 600;
+  transition: opacity 0.2s;
+}
 .cal-weekdays {
   display: grid; grid-template-columns: repeat(7,1fr);
   text-align: center; margin-bottom: 6px;
 }
 .cal-weekday { font-size: 11px; color: var(--text-muted); padding: 4px 0; }
-.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+
+.cal-grid-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7,1fr); gap: 3px;
+  transition: none;
+}
+/* 翻月滑动动画 */
+.cal-grid.slide-left {
+  animation: calSlideLeft 0.28s var(--transition) both;
+}
+.cal-grid.slide-right {
+  animation: calSlideRight 0.28s var(--transition) both;
+}
+@keyframes calSlideLeft {
+  from { opacity:0; transform:translateX(30px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes calSlideRight {
+  from { opacity:0; transform:translateX(-30px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
 .cal-day {
   aspect-ratio: 1;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  border-radius: 12px;
-  font-size: 13px;
+  border-radius: 14px;
+  font-size: 14px;
   cursor: pointer;
   position: relative;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.12s;
   user-select: none;
   gap: 1px;
 }
-.cal-day.has-tag { aspect-ratio: auto; min-height: 42px; padding: 2px 0; }
+.cal-day:active { transform: scale(0.92); }
+.cal-day.has-tag { aspect-ratio: auto; min-height: 44px; padding: 2px 0; }
 .cal-deviation-tag {
   font-size: 8px; line-height: 1; font-weight: 500;
-  padding: 1px 4px; border-radius: 3px; white-space: nowrap;
+  padding: 1px 5px; border-radius: 4px; white-space: nowrap;
   margin-top: 1px;
 }
 .cal-deviation-tag.early  { background:#fff3e0; color:#e67e22; }
 .cal-deviation-tag.late   { background:#fde8ee; color:#d95b74; }
 .cal-deviation-tag.ontime { background:#e8f5e9; color:#388e3c; }
-.cal-day:active { opacity: 0.7; }
-.cal-day.other-month { color: #ccc; }
+.cal-day.other-month { color: #ddd; }
 .cal-day.today { font-weight: 700; color: var(--primary); }
 .cal-day.today::after {
   content:''; position:absolute; bottom:4px;
   width:4px; height:4px; background:var(--primary); border-radius:50%;
 }
-.cal-day.period { background: #fde; color: var(--primary-dark); font-weight:600; }
-.cal-day.period-start { background: var(--primary); color:#fff; border-radius:50%; }
-.cal-day.period-start.has-tag { border-radius:14px; justify-content:flex-start; padding-top:4px; }
-.cal-day.fertile { background: #fff0e8; }
-.cal-day.ovulation { background: var(--orange); color:#fff; border-radius:50%; }
-.cal-day.safe { }
+.cal-day.period { background: #fce4eb; color: var(--primary-dark); font-weight: 600; }
+.cal-day.period-start { background: var(--primary); color:#fff; border-radius: 50%; }
+.cal-day.period-start.has-tag { border-radius: 16px; justify-content:flex-start; padding-top:4px; }
+.cal-day.fertile { background: #fff5ed; }
+.cal-day.ovulation { background: var(--orange); color:#fff; border-radius: 50%; }
 .cal-dot {
   width: 5px; height: 5px; border-radius: 50%;
   position: absolute; bottom: 3px;
 }
 .cal-legend {
-  display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px;
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
 }
 .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted); }
 .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
@@ -704,29 +778,29 @@ svg.ring circle { fill:none; stroke-linecap:round; }
 .btn-quick-record {
   width: 100%;
   border: none;
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 20px 16px 16px;
   cursor: pointer;
   font-family: 'Noto Sans SC', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  transition: transform 0.15s, box-shadow 0.2s;
+  gap: 4px;
+  transition: transform 0.12s, box-shadow 0.2s;
   margin-bottom: 14px;
 }
 .btn-quick-record:active {
   transform: scale(0.96);
 }
 .btn-quick-icon {
-  font-size: 36px;
+  font-size: 32px;
   line-height: 1;
   margin-bottom: 2px;
 }
 .btn-quick-label {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
 }
 .btn-quick-sub {
   font-size: 12px;
@@ -736,16 +810,16 @@ svg.ring circle { fill:none; stroke-linecap:round; }
 
 /* 开始按钮 —— 粉色系 */
 .btn-quick-start {
-  background: linear-gradient(135deg, #d95b74 0%, #e87d93 60%, #f4a0b4 100%);
+  background: linear-gradient(135deg, #d95b74 0%, #e87d93 100%);
   color: #fff;
-  box-shadow: 0 8px 24px rgba(217,91,116,0.38);
+  box-shadow: 0 6px 20px rgba(217,91,116,0.25);
 }
 
 /* 结束按钮 —— 绿色系 */
 .btn-quick-end {
-  background: linear-gradient(135deg, #5ca870 0%, #6dbf82 60%, #8fd4a0 100%);
+  background: linear-gradient(135deg, #5ca870 0%, #6dbf82 100%);
   color: #fff;
-  box-shadow: 0 8px 24px rgba(109,191,130,0.38);
+  box-shadow: 0 6px 20px rgba(109,191,130,0.25);
 }
 
 /* 展开/折叠：选择其他日期 */
@@ -821,33 +895,50 @@ svg.ring circle { fill:none; stroke-linecap:round; }
 }
 
 /* ===== STATS CARD ===== */
-.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
 .stats-item {
-  background:var(--bg); border-radius:var(--radius-sm);
-  padding:14px 10px; text-align:center;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 18px 12px;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .stats-value {
   font-family:'Noto Serif SC',serif; font-size:26px; font-weight:700;
   color:var(--primary); line-height:1.1;
 }
-.stats-value.green { color:var(--green); }
-.stats-value.orange { color:var(--orange); }
-.stats-label { font-size:11px; color:var(--text-muted); margin-top:4px; }
+.stats-value.green { color: var(--green); }
+.stats-value.orange { color: var(--orange); }
+.stats-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
 
-.trend-section { margin-top:14px; }
-.trend-title { font-size:12px; font-weight:500; color:var(--text); margin-bottom:10px; }
-.trend-chart { display:flex; align-items:flex-end; gap:4px; height:72px; padding:0 2px; position:relative; }
+.trend-section {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 16px 14px;
+  margin-top: 16px;
+}
+.trend-title {
+  font-size: 13px; font-weight: 600;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.trend-chart { display:flex; align-items:flex-end; gap:4px; height:80px; padding:0 2px; position:relative; }
 .trend-bar {
-  flex:1; border-radius:4px 4px 0 0; min-width:5px;
-  transition:height 0.5s cubic-bezier(.4,0,.2,1);
+  flex:1; max-width:28px; border-radius:5px 5px 0 0; min-width:5px;
+  transition:height 0.5s var(--transition);
   position:relative; cursor:pointer;
 }
 .trend-bar.cycle-bar  { background:linear-gradient(180deg,#d95b74,#e88d9e); }
 .trend-bar.duration-bar { background:linear-gradient(180deg,#6dbf82,#8fd4a0); }
 .trend-bar:hover { opacity:0.8; }
 .trend-bar-label {
-  position:absolute; bottom:-16px; left:50%; transform:translateX(-50%);
-  font-size:9px; color:var(--text-muted); white-space:nowrap;
+  position:absolute; bottom:-14px; left:50%; transform:translateX(-50%);
+  font-size:8px; color:var(--text-muted); white-space:nowrap;
 }
 .trend-avg-line {
   position:absolute; left:0; right:0; border-top:2px dashed var(--primary-light);
