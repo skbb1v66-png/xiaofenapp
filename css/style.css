@@ -213,7 +213,7 @@ body {
 }
 .cal-weekdays {
   display: grid; grid-template-columns: repeat(7,1fr);
-  text-align: center; margin-bottom: 6px;
+  text-align: center; margin-bottom: 8px;
 }
 .cal-weekday { font-size: 11px; color: var(--text-muted); padding: 4px 0; }
 
@@ -222,8 +222,7 @@ body {
   overflow: hidden;
 }
 .cal-grid {
-  display: grid; grid-template-columns: repeat(7,1fr); gap: 3px;
-  transition: none;
+  display: grid; grid-template-columns: repeat(7,1fr); gap: 2px;
 }
 /* 翻月滑动动画 */
 .cal-grid.slide-left {
@@ -241,47 +240,52 @@ body {
   to   { opacity:1; transform:translateX(0); }
 }
 
+/* ——— 日期格 ——— */
 .cal-day {
   min-height: 44px;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  border-radius: 14px;
-  font-size: 14px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
   cursor: pointer;
   position: relative;
-  transition: background 0.15s, transform 0.12s;
-  user-select: none;
-  gap: 1px;
   padding: 2px 0;
+  transition: background 0.15s, transform 0.12s;
+  font-size: 14px;
+  user-select: none;
 }
 .cal-day:active { transform: scale(0.92); }
-.cal-day.has-tag { padding: 3px 0; }
-.cal-deviation-tag:empty { display: none; }
-.cal-deviation-tag {
-  font-size: 8px; line-height: 1; font-weight: 500;
-  padding: 1px 5px; border-radius: 4px; white-space: nowrap;
-  margin-top: 1px;
-}
-.cal-deviation-tag.early  { background:#fff3e0; color:#e67e22; }
-.cal-deviation-tag.late   { background:#fde8ee; color:#d95b74; }
-.cal-deviation-tag.ontime { background:#e8f5e9; color:#388e3c; }
 .cal-day.other-month { color: #ddd; }
+/* 当天圆点指示 */
 .cal-day.today { font-weight: 700; color: var(--primary); }
 .cal-day.today::after {
-  content:''; position:absolute; bottom:4px;
+  content:''; position:absolute; bottom:3px;
   width:4px; height:4px; background:var(--primary); border-radius:50%;
 }
+/* 阶段色 */
+.cal-day.period-start { background: var(--primary); color:#fff; }
 .cal-day.period { background: #fce4eb; color: var(--primary-dark); font-weight: 600; }
-.cal-day.period-start { background: var(--primary); color:#fff; border-radius: 50%; }
-.cal-day.period-start.has-tag { border-radius: 16px; justify-content:flex-start; padding-top:4px; }
+.cal-day.ovulation { background: var(--orange); color:#fff; }
 .cal-day.fertile { background: #fff5ed; }
-.cal-day.ovulation { background: var(--orange); color:#fff; border-radius: 50%; }
+/* 日期数字 */
+.cal-day-num { line-height: 1.3; }
+/* 偏差标签（固定在格子内，不改变格子高度） */
+.cal-day-tag {
+  font-size: 8px; line-height: 1.2; font-weight: 500;
+  padding: 1px 4px; border-radius: 3px; white-space: nowrap;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
+.cal-day-tag.early  { background:#fff3e0; color:#b85e00; }
+.cal-day-tag.late   { background:#fde8ee; color:#b04860; }
+.cal-day-tag.ontime { background:#e8f5e9; color:#2e7d32; }
+/* 心情小圆点 */
 .cal-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  position: absolute; bottom: 3px;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--primary-light);
+  position: absolute; bottom: 2px;
 }
 .cal-legend {
-  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
+  display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px;
 }
 .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted); }
 .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }

@@ -271,48 +271,69 @@ function calNav(dir) {
 }
 
 function renderCalendar(animDir) {
+  // ---- 数据准备 ----
   var periods = loadPeriods();
   var phases = getDatePhases(periods);
   var devs = loadDeviations();
+  var moods = loadMoods();
   var today = todayStr();
+
   document.getElementById('calMonthLabel').textContent = calYear + '年' + (calMonth + 1) + '月';
   var grid = document.getElementById('calGrid');
+
   var firstDay = new Date(calYear, calMonth, 1).getDay();
   var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  var html = '';
-  for (var i = 0; i < firstDay; i++) html += '<div class="cal-day other-month"></div>';
-  var moods = loadMoods();
+
+  // ---- 生成日期格数据 ----
+  var cells = [];
+  // 月初空白格
+  for (var i = 0; i < firstDay; i++) cells.push({ empty: true });
+
   for (var d = 1; d <= daysInMonth; d++) {
     var ds = calYear + '-' + String(calMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     var ph = phases[ds] || {};
-    var hasMood = !!moods[ds];
+
     var cls = 'cal-day';
     if (ds === today) cls += ' today';
     if (ph.periodStart) cls += ' period-start';
     else if (ph.period) cls += ' period';
     else if (ph.ovulation) cls += ' ovulation';
     else if (ph.fertile) cls += ' fertile';
-    var extras = '';
-    if (ph.periodStart && devs[ds]) {
-      var st = devs[ds].status;
-      var abs = Math.abs(devs[ds].deviation);
-      // 异常偏差（>10天）不显示具体天数，避免误导
-      var label;
-      if (devs[ds].anomaly) {
-        label = '⚠️ 异常';
-        cls += ' anomaly';
-      } else {
-        label = st === 'ontime' ? '准时' : st === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
-      }
-      cls += ' has-tag';
-      extras += '<div class="cal-deviation-tag ' + st + '">' + label + '</div>';
-    }
-    var dot = hasMood ? '<div class="cal-dot" style="background:var(--primary-light)"></div>' : '';
-    html += '<div class="' + cls + '" onclick="calDayClick(\'' + ds + '\')">' + d + extras + dot + '</div>';
+
+    cells.push({
+      ds: ds, day: d, cls: cls,
+      hasMood: !!moods[ds],
+      devData: (ph.periodStart && devs[ds]) ? devs[ds] : null
+    });
   }
+
+  // ---- 渲染 HTML ----
+  var html = cells.map(function (cell) {
+    if (cell.empty) return '<div class="cal-day other-month"></div>';
+
+    // 偏差标签
+    var tagHtml = '';
+    if (cell.devData) {
+      if (cell.devData.anomaly) {
+        tagHtml = '<span class="cal-day-tag">⚠️</span>';
+      } else {
+        var dd = cell.devData;
+        var txt = dd.status === 'ontime' ? '准时' :
+          dd.status === 'early' ? '提前' + Math.abs(dd.deviation) + '天' : '推迟' + dd.deviation + '天';
+        tagHtml = '<span class="cal-day-tag ' + dd.status + '">' + txt + '</span>';
+      }
+    }
+
+    var dotHtml = cell.hasMood ? '<span class="cal-dot"></span>' : '';
+
+    return '<div class="' + cell.cls + '" onclick="calDayClick(\'' + cell.ds + '\')">' +
+      '<span class="cal-day-num">' + cell.day + '</span>' +
+      tagHtml + dotHtml + '</div>';
+  }).join('');
+
   grid.innerHTML = html;
 
-  // 翻月动画
+  // ---- 翻月动画 ----
   if (animDir) {
     _calAnimating = true;
     grid.classList.add('slide-' + animDir);
