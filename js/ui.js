@@ -136,11 +136,12 @@ function renderDeviationCard() {
   if (sorted.length < 2) { card.style.display = 'none'; return; }
   card.style.display = 'block';
 
-  // 统计
+  // 统计（异常偏差不计入平均，避免被极端值误导）
   var early = 0, late = 0, ontime = 0, totalDev = 0, devCount = 0;
   sorted.forEach(function (p) {
     var d = devs[p];
     if (!d) return;
+    if (d.anomaly) { early++; return; }  // 异常计数但不参与均值
     totalDev += d.deviation;
     devCount++;
     if (d.status === 'early') early++;
@@ -166,10 +167,14 @@ function renderDeviationCard() {
         '<div class="deviation-date">' + fmtCN(p) + ' ' + WEEKDAYS[parseDate(p).getDay()] + '</div>' +
         '<div class="deviation-badge first">首次记录</div></div>';
     }
-    var abs = Math.abs(d.deviation);
-    var detail = d.status === 'ontime' ? '准时' :
-      d.status === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
-    if (d.anomaly) detail += ' ⚠️';
+    var detail;
+    if (d.anomaly) {
+      detail = '⚠️ 异常（偏差较大）';
+    } else {
+      var abs = Math.abs(d.deviation);
+      detail = d.status === 'ontime' ? '准时' :
+        d.status === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
+    }
     var statusEmojis = { early: '🟠', late: '🔴', ontime: '🟢' };
     return '<div class="deviation-item">' +
       '<div class="deviation-date">' + fmtCN(p) + ' ' + WEEKDAYS[parseDate(p).getDay()] + '</div>' +
@@ -291,8 +296,14 @@ function renderCalendar(animDir) {
     if (ph.periodStart && devs[ds]) {
       var st = devs[ds].status;
       var abs = Math.abs(devs[ds].deviation);
-      var label = st === 'ontime' ? '准时' : st === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
-      if (devs[ds].anomaly) { label += ' ⚠️'; cls += ' anomaly'; }
+      // 异常偏差（>10天）不显示具体天数，避免误导
+      var label;
+      if (devs[ds].anomaly) {
+        label = '⚠️ 异常';
+        cls += ' anomaly';
+      } else {
+        label = st === 'ontime' ? '准时' : st === 'early' ? '提前' + abs + '天' : '推迟' + abs + '天';
+      }
       cls += ' has-tag';
       extras += '<div class="cal-deviation-tag ' + st + '">' + label + '</div>';
     }
@@ -327,8 +338,11 @@ function calDayClick(ds) {
   var devStr = '';
   if (ph.periodStart && devs[ds]) {
     var d = devs[ds];
-    devStr = d.status === 'ontime' ? ' ✅准时' : d.status === 'early' ? ' 🟠提前' + Math.abs(d.deviation) + '天' : ' 🔴推迟' + d.deviation + '天';
-    if (d.anomaly) devStr += ' ⚠️异常';
+    if (d.anomaly) {
+      devStr = ' ⚠️周期异常';
+    } else {
+      devStr = d.status === 'ontime' ? ' ✅准时' : d.status === 'early' ? ' 🟠提前' + Math.abs(d.deviation) + '天' : ' 🔴推迟' + d.deviation + '天';
+    }
   }
   showToast(phaseName + (moodStr ? ' · ' + moodStr : '') + devStr);
 }
