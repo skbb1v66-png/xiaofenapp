@@ -408,60 +408,102 @@ svg.ring circle { fill:none; stroke-linecap:round; }
 
 /* 个人信息卡片 —— 渐变背景 */
 .profile-card {
-  background: linear-gradient(180deg, #fff 0%, #fef5f7 40%, #fef2f5 100%);
+  background: linear-gradient(165deg, #fff 0%, #fff 50%, #fef2f5 100%);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
-  padding: 30px 20px 22px;
+  box-shadow: 0 6px 28px rgba(217,91,116,0.10), 0 1px 4px rgba(217,91,116,0.06);
+  padding: 34px 20px 24px;
   margin-bottom: 14px;
   text-align: center;
   position: relative;
   overflow: hidden;
-  border: 1.5px solid var(--primary-pale);
+  border: 1.5px solid rgba(217,91,116,0.10);
 }
 .profile-card::before {
   content: '';
   position: absolute;
-  top: -40px; right: -40px;
-  width: 140px; height: 140px;
-  background: radial-gradient(circle, var(--primary-pale) 0%, transparent 70%);
+  top: -60px; right: -50px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(217,91,116,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.profile-card::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: -30px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(247,184,200,0.08) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
 
+/* 头像容器 - 加大 + 双层光晕 */
 .profile-avatar-wrap {
-  position:relative; width:88px; height:88px; margin:0 auto 14px;
-  border-radius:50%; overflow:visible; cursor:pointer;
+  position: relative; width: 100px; height: 100px; margin: 0 auto 18px;
+  border-radius: 50%; overflow: visible; cursor: pointer;
 }
+/* 外层光晕 */
+.profile-avatar-wrap::before {
+  content: '';
+  position: absolute;
+  top: -8px; left: -8px; right: -8px; bottom: -8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f7b8c8, #fce4eb, #f7b8c8);
+  opacity: 0.35;
+  animation: profileGlow 3s ease-in-out infinite alternate;
+}
+@keyframes profileGlow {
+  0% { opacity: 0.3; transform: scale(1); }
+  100% { opacity: 0.5; transform: scale(1.04); }
+}
+
 .profile-avatar {
-  width:88px; height:88px; border-radius:50%; object-fit:cover;
-  border:3.5px solid var(--primary-pale);
+  width: 100px; height: 100px; border-radius: 50%; object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 16px rgba(217,91,116,0.18);
+  position: relative;
+  z-index: 1;
 }
 .profile-avatar-placeholder {
-  width:88px; height:88px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:36px; font-weight:700; color:#fff;
-  border:3.5px solid var(--primary-pale);
+  width: 100px; height: 100px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; font-weight: 700; color: #fff;
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 16px rgba(217,91,116,0.18);
+  position: relative;
+  z-index: 1;
 }
 .profile-avatar-badge {
-  position:absolute; bottom:4px; right:4px;
-  background:var(--primary); border-radius:50%;
-  width:28px; height:28px; font-size:14px;
-  display:flex; align-items:center; justify-content:center;
-  border:2.5px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.15);
-  pointer-events:none;
+  position: absolute; bottom: 2px; right: 2px;
+  background: var(--primary); border-radius: 50%;
+  width: 30px; height: 30px; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2.5px solid #fff; box-shadow: 0 2px 10px rgba(217,91,116,0.25);
+  pointer-events: none;
+  z-index: 2;
 }
 .profile-name-display {
-  font-size:21px; font-weight:600; color:var(--text);
-  cursor:pointer; padding:4px 12px; border-radius:8px;
-  display:inline-block; min-width:60px; margin-bottom:6px;
+  font-size: 22px; font-weight: 700; color: var(--text);
+  cursor: pointer; padding: 4px 14px; border-radius: 10px;
+  display: inline-block; min-width: 60px; margin-bottom: 4px;
   transition: background 0.2s;
   font-family: 'Noto Serif SC', serif;
+  letter-spacing: 0.03em;
+  background: linear-gradient(135deg, #3d2030, #5a3a4a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .profile-name-display:hover { background: var(--bg); }
-.profile-name-display::after {
-  content:' ✏️'; font-size:13px; opacity:0; transition: opacity 0.2s;
+.profile-name-display:hover {
+  background: rgba(217,91,116,0.06);
+  -webkit-text-fill-color: var(--text);
+  background-clip: unset;
 }
-.profile-name-display:hover::after { opacity:0.5; }
+.profile-name-display::after {
+  content: ' ✏️'; font-size: 12px; opacity: 0; transition: opacity 0.2s;
+}
+.profile-name-display:hover::after { opacity: 0.5; }
 
 .profile-name-input {
   border:none; background:var(--bg); padding:6px 10px;

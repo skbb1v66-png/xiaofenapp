@@ -473,6 +473,14 @@ function handleAdd() {
   var periods = loadPeriods();
   if (periods.indexOf(v) !== -1) { err.textContent = '该日期已记录过了'; return; }
 
+  // 检查是否有未结束的经期
+  var unended = getUnendedPeriod();
+  if (unended && unended !== v) {
+    if (!confirm('⚠️ 当前有一个从 ' + fmtCN(unended) + ' 开始的经期尚未记录结束。\n\n确定要开始一个新的经期记录吗？（建议先记录当前经期结束）')) {
+      return;
+    }
+  }
+
   // 检查是否距离上次经期太近（低于用户设定的最短周期）
   if (periods.length) {
     var sorted2 = periods.slice().sort();
@@ -695,9 +703,11 @@ function installPWA() {
 //  数据导出
 // ======================================================
 
-function exportAllData() {
+async function exportAllData() {
+  var p = loadProfile();
+  var avatarDataUrl = p.hasAvatar ? (await loadAvatarFromDB(p.username)) : '';
   var data = {
-    exportVersion: 1,
+    exportVersion: 2,
     exportedAt: new Date().toISOString(),
     appVersion: '2.5.4',
     data: {
@@ -706,7 +716,7 @@ function exportAllData() {
       moods: loadMoods(),
       deviations: loadDeviations(),
       settings: loadSettings(),
-      profile: { nickname: loadProfile().nickname, avatar: '' }
+      profile: { nickname: p.nickname, avatar: avatarDataUrl }
     }
   };
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -755,6 +765,10 @@ function importAllData(event) {
       if (backup.data.profile && backup.data.profile.nickname) {
         var p = loadProfile();
         p.nickname = backup.data.profile.nickname;
+        if (backup.data.profile.avatar) {
+          saveAvatarToDB(p.username, backup.data.profile.avatar);
+          p.hasAvatar = true;
+        }
         saveProfile(p);
       }
 
@@ -785,10 +799,13 @@ function closeSetupModal() {
 }
 
 async function handleSetupAdmin() {
-  var uname = document.getElementById('setupUsername').value.trim();
-  var pwd   = document.getElementById('setupPassword').value.trim();
-  var pwd2  = document.getElementById('setupPassword2').value.trim();
-  var err   = document.getElementById('setupError');
+  if (typeof _authBusy !== 'undefined' && _authBusy) return;
+  if (typeof _authBusy !== 'undefined') _authBusy = true;
+  try {
+    var uname = document.getElementById('setupUsername').value.trim();
+    var pwd   = document.getElementById('setupPassword').value.trim();
+    var pwd2  = document.getElementById('setupPassword2').value.trim();
+    var err   = document.getElementById('setupError');
 
   if (!uname || !pwd || !pwd2) { err.textContent = '请填写所有字段'; return; }
   if (uname.length < 2)  { err.textContent = '用户名至少2个字符'; return; }
@@ -813,9 +830,12 @@ async function handleSetupAdmin() {
   prof.nickname = uname;
   saveProfile(prof);
 
-  closeSetupModal(); closeLoginPrompt();
-  renderProfilePage(); renderHome();
-  showToast('🎉 管理员账号 ' + uname + ' 已创建');
+    closeSetupModal(); closeLoginPrompt();
+    renderProfilePage(); renderHome();
+    showToast('🎉 管理员账号 ' + uname + ' 已创建');
+  } finally {
+    if (typeof _authBusy !== 'undefined') _authBusy = false;
+  }
 }
 
 // ======================================================

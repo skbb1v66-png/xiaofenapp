@@ -69,13 +69,59 @@ function saveAccounts(d) { localStorage.setItem(K_ACCOUNTS, JSON.stringify(d)); 
 function loadProfile() {
   try {
     return Object.assign(
-      { nickname: '', avatar: '', loggedIn: false, userId: '', username: '' },
+      { nickname: '', hasAvatar: false, loggedIn: false, userId: '', username: '' },
       JSON.parse(localStorage.getItem(K_PROFILE)) || {}
     );
   }
-  catch { return { nickname: '', avatar: '', loggedIn: false, userId: '', username: '' }; }
+  catch { return { nickname: '', hasAvatar: false, loggedIn: false, userId: '', username: '' }; }
 }
 function saveProfile(p) { localStorage.setItem(K_PROFILE, JSON.stringify(p)); }
+
+// ---------- IndexedDB 头像存储 ----------
+const DB_NAME = 'xiaofenapp';
+const DB_VER = 1;
+
+function _openAvatarDB() {
+  return new Promise(function(resolve, reject) {
+    var req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains('avatar')) {
+        db.createObjectStore('avatar');
+      }
+    };
+    req.onsuccess = function(e) { resolve(e.target.result); };
+    req.onerror = function(e) { reject(e.target.error); };
+  });
+}
+
+async function loadAvatarFromDB(username) {
+  try {
+    var db = await _openAvatarDB();
+    return new Promise(function(resolve) {
+      var tx = db.transaction('avatar', 'readonly');
+      var req = tx.objectStore('avatar').get(username);
+      req.onsuccess = function() { resolve(req.result || ''); };
+      req.onerror = function() { resolve(''); };
+    });
+  } catch { return ''; }
+}
+
+async function saveAvatarToDB(username, dataUrl) {
+  try {
+    var db = await _openAvatarDB();
+    var tx = db.transaction('avatar', 'readwrite');
+    tx.objectStore('avatar').put(dataUrl, username);
+  } catch {}
+}
+
+async function deleteAvatarFromDB(username) {
+  try {
+    var db = await _openAvatarDB();
+    var tx = db.transaction('avatar', 'readwrite');
+    tx.objectStore('avatar').delete(username);
+  } catch {}
+}
 
 // ---------- 登录锁定读写 ----------
 function loadLockout() {

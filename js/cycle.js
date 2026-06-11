@@ -107,10 +107,10 @@ function getDatePhases(periods) {
 }
 
 // 计算新经期记录相对于预测的偏差（提前/准时/推迟）
-// 返回 null 表示该记录无法计算偏差（首次记录）
+// 返回 null 表示该记录无法计算偏差（需至少 2 条历史记录才有循环周期参考）
 function calcDeviation(periods, newDate) {
   var sorted = periods.slice().sort();
-  if (sorted.length < 1) return null;
+  if (sorted.length < 2) return null;
   var last = sorted[sorted.length - 1];
   var cycle = calcCycle(periods);
   var predicted = addDays(last, cycle);

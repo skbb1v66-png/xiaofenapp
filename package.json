@@ -1,0 +1,23 @@
+{
+  "name": "xiaofenapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skbb1v66-png/xiaofenapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/skbb1v66-png/xiaofenapp/issues"
+  },
+  "homepage": "https://github.com/skbb1v66-png/xiaofenapp#readme",
+  "devDependencies": {
+    "wrangler": "^4.98.0"
+  }
+}

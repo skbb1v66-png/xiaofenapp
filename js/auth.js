@@ -6,6 +6,9 @@
 //        setRegKey, loadSettings, saveSettings）
 // ======================================================
 
+// ---------- 防重入锁（防止 async 函数被双击并行触发）----------
+var _authBusy = false;
+
 // ---------- 密码哈希（SubtleCrypto PBKDF2）----------
 
 // 生成确定性盐值，基于用户名
@@ -138,57 +141,66 @@ function closeLoginPrompt() {
 // ---------- 注册 ----------
 
 async function handleRegister() {
-  var uname = document.getElementById('regUsername').value.trim();
-  var pwd   = document.getElementById('regPassword').value.trim();
-  var pwd2  = document.getElementById('regPassword2').value.trim();
-  var code  = document.getElementById('regInviteCode').value.trim();
-  var err   = document.getElementById('regError');
+  if (_authBusy) return;
+  _authBusy = true;
+  try {
+    var uname = document.getElementById('regUsername').value.trim();
+    var pwd   = document.getElementById('regPassword').value.trim();
+    var pwd2  = document.getElementById('regPassword2').value.trim();
+    var code  = document.getElementById('regInviteCode').value.trim();
+    var err   = document.getElementById('regError');
 
-  if (!uname || !pwd || !pwd2) { err.textContent = '请填写所有字段'; return; }
-  if (uname.length < 2)  { err.textContent = '用户名至少2个字符'; return; }
-  if (pwd.length < 4)    { err.textContent = '密码至少4位'; return; }
-  if (pwd !== pwd2)      { err.textContent = '两次密码不一致'; return; }
+    if (!uname || !pwd || !pwd2) { err.textContent = '请填写所有字段'; return; }
+    if (uname.length < 2)  { err.textContent = '用户名至少2个字符'; return; }
+    if (pwd.length < 4)    { err.textContent = '密码至少4位'; return; }
+    if (pwd !== pwd2)      { err.textContent = '两次密码不一致'; return; }
 
-  var accounts = loadAccounts();
-  var isFirstAccount = Object.keys(accounts).length === 0;
+    var accounts = loadAccounts();
+    var isFirstAccount = Object.keys(accounts).length === 0;
 
-  // 非首个账号需要验证注册密钥
-  if (!isFirstAccount) {
-    if (!code) { err.textContent = '请输入注册密钥'; return; }
-    if (code !== getRegKey()) { err.textContent = '注册密钥错误，请向管理员索取'; return; }
+    // 非首个账号需要验证注册密钥
+    if (!isFirstAccount) {
+      if (!code) { err.textContent = '请输入注册密钥'; return; }
+      if (code !== getRegKey()) { err.textContent = '注册密钥错误，请向管理员索取'; return; }
+    }
+
+    if (accounts[uname]) { err.textContent = '该用户名已存在，请换一个'; return; }
+
+    // 哈希密码后存储
+    var passwordHash = await hashPassword(pwd, uname);
+    accounts[uname] = { passwordHash: passwordHash, role: isFirstAccount ? 'admin' : 'user' };
+    saveAccounts(accounts);
+
+    // 首个管理员账号：自动生成注册密钥
+    if (isFirstAccount) {
+      var newKey = Math.random().toString(36).substring(2, 10);
+      setRegKey(newKey);
+    }
+
+    // 自动登录
+    var prof = loadProfile();
+    prof.loggedIn = true; prof.userId = uname; prof.username = uname;
+    if (!prof.nickname) prof.nickname = uname;
+    saveProfile(prof);
+
+    closeRegisterModal(); closeLoginPrompt();
+    renderProfilePage(); renderHome();
+    showToast('🎉 注册成功！欢迎 ' + uname);
+  } finally {
+    _authBusy = false;
   }
-
-  if (accounts[uname]) { err.textContent = '该用户名已存在，请换一个'; return; }
-
-  // 哈希密码后存储
-  var passwordHash = await hashPassword(pwd, uname);
-  accounts[uname] = { passwordHash: passwordHash, role: isFirstAccount ? 'admin' : 'user' };
-  saveAccounts(accounts);
-
-  // 首个管理员账号：自动生成注册密钥
-  if (isFirstAccount) {
-    var newKey = Math.random().toString(36).substring(2, 10);
-    setRegKey(newKey);
-  }
-
-  // 自动登录
-  var prof = loadProfile();
-  prof.loggedIn = true; prof.userId = uname; prof.username = uname;
-  if (!prof.nickname) prof.nickname = uname;
-  saveProfile(prof);
-
-  closeRegisterModal(); closeLoginPrompt();
-  renderProfilePage(); renderHome();
-  showToast('🎉 注册成功！欢迎 ' + uname);
 }
 
 // ---------- 登录 ----------
 
 async function handleLogin() {
-  var u = document.getElementById('loginUsername').value.trim();
-  var p = document.getElementById('loginPassword').value.trim();
-  var err = document.getElementById('loginError');
-  if (!u || !p) { err.textContent = '请输入用户名和密码'; return; }
+  if (_authBusy) return;
+  _authBusy = true;
+  try {
+    var u = document.getElementById('loginUsername').value.trim();
+    var p = document.getElementById('loginPassword').value.trim();
+    var err = document.getElementById('loginError');
+    if (!u || !p) { err.textContent = '请输入用户名和密码'; return; }
 
   // 锁定检查
   var lockout = loadLockout();
@@ -227,18 +239,21 @@ async function handleLogin() {
     return;
   }
 
-  // 登录成功，清除锁定
-  delete lockout[u];
-  saveLockout(lockout);
+    // 登录成功，清除锁定
+    delete lockout[u];
+    saveLockout(lockout);
 
-  var prof = loadProfile();
-  prof.loggedIn = true; prof.userId = u; prof.username = u;
-  if (!prof.nickname) prof.nickname = u;
-  saveProfile(prof);
+    var prof = loadProfile();
+    prof.loggedIn = true; prof.userId = u; prof.username = u;
+    if (!prof.nickname) prof.nickname = u;
+    saveProfile(prof);
 
-  closeLoginModal(); closeLoginPrompt();
-  renderProfilePage(); renderHome();
-  showToast('登录成功 💗');
+    closeLoginModal(); closeLoginPrompt();
+    renderProfilePage(); renderHome();
+    showToast('登录成功 💗');
+  } finally {
+    _authBusy = false;
+  }
 }
 
 function handleLogout() {
@@ -252,10 +267,13 @@ function handleLogout() {
 // ---------- 修改密码 ----------
 
 async function handleChangePwd() {
-  var oldPwd  = document.getElementById('oldPassword').value.trim();
-  var newPwd  = document.getElementById('newPassword').value.trim();
-  var newPwd2 = document.getElementById('newPassword2').value.trim();
-  var err = document.getElementById('changePwdError');
+  if (_authBusy) return;
+  _authBusy = true;
+  try {
+    var oldPwd  = document.getElementById('oldPassword').value.trim();
+    var newPwd  = document.getElementById('newPassword').value.trim();
+    var newPwd2 = document.getElementById('newPassword2').value.trim();
+    var err = document.getElementById('changePwdError');
   if (!oldPwd || !newPwd || !newPwd2) { err.textContent = '请填写所有字段'; return; }
   if (newPwd.length < 4)  { err.textContent = '新密码至少4位'; return; }
   if (newPwd !== newPwd2) { err.textContent = '两次新密码不一致'; return; }
@@ -281,14 +299,25 @@ async function handleChangePwd() {
   if (acct.password) delete acct.password; // 清理旧格式
   saveAccounts(accounts);
 
-  closeChangePwdModal();
-  showToast('🔒 密码已修改');
+    closeChangePwdModal();
+    showToast('🔒 密码已修改');
+  } finally {
+    _authBusy = false;
+  }
 }
 
 // ---------- 管理员功能 ----------
 
+// HTML 编码函数，防止 XSS（用于 innerHTML 中的纯文本插值）
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 async function handleCreateUser() {
-  var uname = document.getElementById('newUsername').value.trim();
+  if (_authBusy) return;
+  _authBusy = true;
+  try {
+    var uname = document.getElementById('newUsername').value.trim();
   var pwd   = document.getElementById('newUserPwd').value.trim();
   var err   = document.getElementById('createUserError');
   if (!uname || !pwd) { err.textContent = '请填写用户名和密码'; return; }
@@ -301,36 +330,43 @@ async function handleCreateUser() {
   accounts[uname] = { passwordHash: await hashPassword(pwd, uname), role: 'user' };
   saveAccounts(accounts);
 
-  err.textContent = '';
-  document.getElementById('newUsername').value = '';
-  document.getElementById('newUserPwd').value = '';
-  showToast('✅ 账号 ' + uname + ' 已创建');
-  renderAdminPanel();
+    err.textContent = '';
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newUserPwd').value = '';
+    showToast('✅ 账号 ' + uname + ' 已创建');
+    renderAdminPanel();
+  } finally {
+    _authBusy = false;
+  }
 }
 
 function handleDeleteUser(username) {
-  if (!confirm('确定要删除用户 "' + username + '" 及其所有数据吗？此操作不可撤销。')) return;
+  // decodeURIComponent 配合 renderAdminPanel 的 encodeURIComponent
+  var u = decodeURIComponent(username);
+  if (!confirm('确定要删除用户 "' + u + '" 及其所有数据吗？此操作不可撤销。')) return;
   var accounts = loadAccounts();
-  delete accounts[username];
+  delete accounts[u];
   saveAccounts(accounts);
   // 如被删的是当前登录用户，强制退出
   var p = loadProfile();
-  if (p.username === username) {
+  if (p.username === u) {
     p.loggedIn = false; p.userId = ''; p.username = '';
     saveProfile(p); renderProfilePage(); renderHome();
   }
-  showToast('已删除用户 ' + username);
+  deleteAvatarFromDB(u);
+  showToast('已删除用户 ' + u);
   renderAdminPanel();
 }
 
 async function handleResetPwd(username) {
-  if (!confirm('确定要重置 ' + username + ' 的密码为 123456 吗？')) return;
+  var u = decodeURIComponent(username);
+  if (!confirm('确定要重置 ' + u + ' 的密码为 123456 吗？')) return;
   var accounts = loadAccounts();
-  if (accounts[username]) {
-    accounts[username].passwordHash = await hashPassword('123456', username);
-    if (accounts[username].password) delete accounts[username].password;
+  if (accounts[u]) {
+    accounts[u].passwordHash = await hashPassword('123456', u);
+    if (accounts[u].password) delete accounts[u].password;
     saveAccounts(accounts);
-    showToast(username + ' 密码已重置为 123456');
+    showToast(u + ' 密码已重置为 123456');
     renderAdminPanel();
   }
 }
@@ -357,14 +393,16 @@ function renderAdminPanel() {
     var info = accounts[uname];
     if (info.role === 'admin') continue;
     hasUsers = true;
+    // encodeURIComponent 防止恶意用户名中的 ' 等字符逃逸 onclick
+    var safe = encodeURIComponent(uname);
     html += '<div class="admin-user-row">' +
       '<div class="admin-user-info">' +
-      '<div class="admin-user-name">👤 ' + uname + '</div>' +
+      '<div class="admin-user-name">👤 ' + escHtml(uname) + '</div>' +
       '<div class="admin-user-meta">普通用户 · 经期记录</div>' +
       '</div>' +
       '<div style="display:flex;gap:6px">' +
-      '<button class="btn-reset" onclick="handleResetPwd(\'' + uname + '\')">重置密码</button>' +
-      '<button class="btn-reset" style="color:#e05c5c" onclick="handleDeleteUser(\'' + uname + '\')">删除</button>' +
+      '<button class="btn-reset" onclick="handleResetPwd(\'' + safe + '\')">重置密码</button>' +
+      '<button class="btn-reset" style="color:#e05c5c" onclick="handleDeleteUser(\'' + safe + '\')">删除</button>' +
       '</div></div>';
   }
   list.innerHTML = html + (hasUsers ? '' : '<div style="text-align:center;color:var(--text-muted);padding:12px">暂无普通用户</div>');
@@ -381,11 +419,21 @@ function avatarColor(name) {
 
 function renderProfilePage() {
   var p = loadProfile();
-  // 头像
+  // 头像（先显示首字母占位，再从 IndexedDB 异步加载实际头像）
   var img = document.getElementById('profileAvatarImg');
   var ph  = document.getElementById('profileAvatarPlaceholder');
-  if (p.avatar) {
-    img.src = p.avatar; img.style.display = 'block'; ph.style.display = 'none';
+  if (p.hasAvatar) {
+    // 占位显示首字母，异步加载真实头像
+    if (p.nickname) {
+      img.style.display = 'none'; ph.style.display = 'flex';
+      ph.style.background = avatarColor(p.nickname);
+      ph.textContent = p.nickname.charAt(0);
+    }
+    loadAvatarFromDB(p.username).then(function(dataUrl) {
+      if (dataUrl) {
+        img.src = dataUrl; img.style.display = 'block'; ph.style.display = 'none';
+      }
+    });
   } else if (p.nickname) {
     img.style.display = 'none'; ph.style.display = 'flex';
     ph.style.background = avatarColor(p.nickname);
@@ -489,11 +537,36 @@ function handleAvatarUpload(e) {
   var reader = new FileReader();
   reader.onload = function (ev) {
     var dataUrl = ev.target.result;
-    document.getElementById('profileAvatarImg').src = dataUrl;
-    document.getElementById('profileAvatarImg').style.display = 'block';
-    document.getElementById('profileAvatarPlaceholder').style.display = 'none';
-    var p = loadProfile(); p.avatar = dataUrl; saveProfile(p);
-    showToast('头像已更新 💗');
+    // 用 Canvas 压缩头像：最大 200×200，JPEG quality 0.7，控制在 200KB 内
+    var img = new Image();
+    img.onload = function () {
+      var MAX_W = 200, MAX_H = 200, MAX_BYTES = 200 * 1024;
+      var w = img.width, h = img.height;
+      if (w > MAX_W || h > MAX_H) {
+        var ratio = Math.min(MAX_W / w, MAX_H / h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      var ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      // 尝试 quality 0.7，如果太大则逐步降低
+      var quality = 0.7;
+      var compressed = c.toDataURL('image/jpeg', quality);
+      while (compressed.length > MAX_BYTES && quality > 0.1) {
+        quality -= 0.1;
+        compressed = c.toDataURL('image/jpeg', quality);
+      }
+      document.getElementById('profileAvatarImg').src = compressed;
+      document.getElementById('profileAvatarImg').style.display = 'block';
+      document.getElementById('profileAvatarPlaceholder').style.display = 'none';
+      var p = loadProfile();
+      saveAvatarToDB(p.username, compressed);
+      p.hasAvatar = true;
+      saveProfile(p);
+      showToast('头像已更新 💗');
+    };
+    img.src = dataUrl;
   };
   reader.readAsDataURL(file);
   e.target.value = '';
