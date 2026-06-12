@@ -300,10 +300,13 @@ function renderCalendar(animDir) {
     else if (ph.ovulation) cls += ' ovulation';
     else if (ph.fertile) cls += ' fertile';
 
+    var devData = (ph.periodStart && devs[ds]) ? devs[ds] : null;
+    if (devData) cls += ' has-tag';
+
     cells.push({
       ds: ds, day: d, cls: cls,
       hasMood: !!moods[ds],
-      devData: (ph.periodStart && devs[ds]) ? devs[ds] : null
+      devData: devData
     });
   }
 

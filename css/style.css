@@ -249,31 +249,37 @@ body {
   border-radius: 12px;
   cursor: pointer;
   position: relative;
-  padding: 2px 0;
+  padding: 3px 1px;
   transition: background 0.15s, transform 0.12s;
   font-size: 14px;
   user-select: none;
+  overflow: hidden;
 }
 .cal-day:active { transform: scale(0.92); }
 .cal-day.other-month { color: #ddd; }
 /* 当天圆点指示 */
 .cal-day.today { font-weight: 700; color: var(--primary); }
 .cal-day.today::after {
-  content:''; position:absolute; bottom:3px;
+  content:''; position:absolute; bottom:4px;
   width:4px; height:4px; background:var(--primary); border-radius:50%;
 }
 /* 阶段色 */
 .cal-day.period-start { background: var(--primary); color:#fff; }
 .cal-day.period { background: #fce4eb; color: var(--primary-dark); font-weight: 600; }
-.cal-day.ovulation { background: var(--orange); color:#fff; }
+.cal-day.ovulation { background: var(--orange); color:#fff; border-radius: 50%; }
 .cal-day.fertile { background: #fff5ed; }
+/* 有偏差标签时的布局补偿 */
+.cal-day.has-tag { padding-top: 4px; }
+.cal-day.has-tag .cal-day-num { line-height: 1.1; }
+
 /* 日期数字 */
-.cal-day-num { line-height: 1.3; }
+.cal-day-num { line-height: 1.2; font-size: 13px; }
 /* 偏差标签（固定在格子内，不改变格子高度） */
 .cal-day-tag {
-  font-size: 8px; line-height: 1.2; font-weight: 500;
-  padding: 1px 4px; border-radius: 3px; white-space: nowrap;
-  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  font-size: 7px; line-height: 1.2; font-weight: 500;
+  padding: 0 3px; border-radius: 3px; white-space: nowrap;
+  width: 100%; overflow: hidden; text-overflow: ellipsis;
+  text-align: center; box-sizing: border-box;
 }
 .cal-day-tag.early  { background:#fff3e0; color:#b85e00; }
 .cal-day-tag.late   { background:#fde8ee; color:#b04860; }
@@ -282,7 +288,7 @@ body {
 .cal-dot {
   width: 4px; height: 4px; border-radius: 50%;
   background: var(--primary-light);
-  position: absolute; bottom: 2px;
+  position: absolute; bottom: 4px;
 }
 .cal-legend {
   display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px;

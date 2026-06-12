@@ -98,8 +98,10 @@ function getDatePhases(periods) {
       var fs = addDays(ovul, -2);
       var fe = addDays(ovul, 2);
       if (dayIn < periodLen) map[cur].period = true;
-      if (cur >= fs && cur <= fe) map[cur].fertile = true;
-      if (cur === ovul) map[cur].ovulation = true;
+      // 易孕期间若已标记为经期则不再覆盖（避免色块重叠）
+      if (!map[cur].period && cur >= fs && cur <= fe) map[cur].fertile = true;
+      // 排卵日在经期内时依然标记，但渲染时经期优先级更高
+      if (cur === ovul && !map[cur].period) map[cur].ovulation = true;
     }
     cur = addDays(cur, 1);
   }
